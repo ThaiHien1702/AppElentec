@@ -1,0 +1,223 @@
+SOP Ra/Vào Cổng Doanh Nghiệp (Áp Dụng Ngay)
+Tài liệu: SOP-GATE-ACCESS-001
+Phiên bản: 1.0
+Hiệu lực từ: 08/03/2026
+Đơn vị áp dụng: [Tên doanh nghiệp]
+
+1. Mục tiêu
+- Chuẩn hóa quy trình đăng ký, phê duyệt, kiểm soát người ra/vào cổng.
+- Đảm bảo an ninh, truy vết đầy đủ, giảm thời gian xử lý tại cổng.
+- Rõ trách nhiệm theo từng vai trò: Requester, Approver, Security, Admin.
+
+2. Phạm vi
+- Áp dụng cho: khách, nhà thầu, ứng viên, giao hàng, đối tác, nhân sự thời vụ.
+- Không áp dụng cho: nhân sự nội bộ dùng thẻ nhân viên hợp lệ (trừ khu vực hạn chế yêu cầu phê duyệt riêng).
+
+3. Thuật ngữ trạng thái
+- DRAFT: Yêu cầu nháp.
+- PENDING_APPROVAL: Chờ duyệt.
+- APPROVED: Đã duyệt.
+- REJECTED: Từ chối.
+- CHECKED_IN: Đã vào cổng.
+- CHECKED_OUT: Đã ra cổng.
+- OVERDUE: Quá giờ nhưng chưa check-out.
+- CANCELLED: Hủy yêu cầu.
+
+4. SLA chuẩn
+- Tạo yêu cầu trước giờ đến tối thiểu 2 giờ.
+- Thời gian duyệt cấp 1: <= 30 phút.
+- Thời gian xử lý tại cổng mỗi lượt: <= 60 giây.
+- Đóng phiên check-out cuối ngày: trước 23:59.
+- Xử lý bản ghi OVERDUE: trong 15 phút kể từ cảnh báo.
+
+5. Dữ liệu bắt buộc
+- Họ tên khách.
+- Loại giấy tờ: CCCD/Passport.
+- Số giấy tờ.
+- Số điện thoại.
+- Đơn vị/công ty.
+- Mục đích đến.
+- Người phụ trách nội bộ.
+- Thời gian dự kiến vào/ra.
+- Biển số xe (nếu có).
+- Khu vực được phép vào.
+
+6. RACI theo vai trò
+- Requester: chịu trách nhiệm tạo và cập nhật chính xác thông tin.
+- Approver: chịu trách nhiệm phê duyệt/từ chối đúng chính sách.
+- Security: chịu trách nhiệm xác minh tại cổng và ghi nhận check-in/out.
+- Admin: chịu trách nhiệm cấu hình hệ thống, giám sát log, báo cáo, xử lý sự cố.
+
+7. Quy trình tổng thể (E2E)
+1. Requester tạo yêu cầu.
+2. Hệ thống validate dữ liệu, blacklist, trùng lịch.
+3. Approver duyệt hoặc từ chối.
+4. Khi duyệt, hệ thống phát hành QR/token có hạn.
+5. Security check-in tại cổng.
+6. Theo dõi lưu trú, cảnh báo quá giờ.
+7. Security check-out khi khách rời cổng.
+8. Admin đối soát cuối ngày và xử lý ngoại lệ.
+
+8. SOP chi tiết theo từng vai trò
+
+8.1 SOP cho Requester
+Mục tiêu: Tạo yêu cầu đúng, đủ, đúng thời gian.
+
+Quy trình thao tác:
+1. Đăng nhập hệ thống bằng tài khoản cá nhân.
+2. Chọn Tạo yêu cầu ra/vào cổng.
+3. Nhập đủ dữ liệu bắt buộc.
+4. Chọn mức ưu tiên: Thường hoặc Khẩn.
+5. Đính kèm tài liệu nếu cần: thư mời, hợp đồng, lệnh công tác.
+6. Xác nhận cam kết thông tin chính xác.
+7. Gửi yêu cầu sang trạng thái PENDING_APPROVAL.
+8. Theo dõi trạng thái.
+9. Nếu bị REJECTED, chỉnh sửa và gửi lại.
+10. Nếu kế hoạch thay đổi, chủ động CANCELLED trước giờ hẹn.
+
+Checklist trước khi gửi:
+- Đúng số giấy tờ.
+- Đúng người phụ trách nội bộ.
+- Đúng khung giờ đến.
+- Đúng khu vực được phép vào.
+- Có biển số xe nếu khách đi ô tô/xe máy.
+
+Điểm kiểm soát:
+- Không tạo hồ sơ thay người khác bằng tài khoản dùng chung.
+- Không dùng dữ liệu giấy tờ giả/thiếu căn cứ.
+- Không gửi yêu cầu khẩn trừ trường hợp thật sự cần.
+
+8.2 SOP cho Approver
+Mục tiêu: Duyệt đúng chính sách, đúng thời gian.
+
+Quy trình thao tác:
+1. Mở danh sách PENDING_APPROVAL.
+2. Kiểm tra mục đích, tính hợp lệ, rủi ro.
+3. Đối chiếu blacklist và lịch sử vi phạm (nếu có).
+4. Ra quyết định.
+5. Chọn APPROVED nếu hợp lệ.
+6. Chọn REJECTED và ghi rõ lý do nếu không hợp lệ.
+7. Với hồ sơ nhạy cảm, chuyển duyệt cấp 2 (An ninh/HCNS) theo chính sách.
+8. Bảo đảm quyết định trong SLA <= 30 phút.
+
+Tiêu chí phê duyệt:
+- Có người phụ trách nội bộ rõ ràng.
+- Mục đích công việc hợp lệ.
+- Khung giờ phù hợp chính sách công ty.
+- Không thuộc danh sách hạn chế/blacklist.
+
+Điểm kiểm soát:
+- Không duyệt thiếu thông tin.
+- Không duyệt ngoài chính sách nếu không có phê duyệt đặc biệt.
+- Mọi từ chối phải có lý do bằng văn bản trên hệ thống.
+
+8.3 SOP cho Security (Bảo vệ cổng)
+Mục tiêu: Check-in/check-out nhanh, đúng chuẩn an ninh.
+
+Quy trình check-in:
+1. Yêu cầu khách xuất trình QR hoặc giấy tờ định danh.
+2. Quét QR hoặc tra cứu bằng số giấy tờ/số điện thoại.
+3. Đối chiếu ảnh, họ tên, giấy tờ thật.
+4. Nếu khớp và trạng thái APPROVED, thực hiện CHECKED_IN.
+5. In/cấp thẻ khách tạm (nếu có).
+6. Hướng dẫn khách khu vực được phép và quy định an toàn.
+7. Ghi nhận trường hợp đặc biệt vào nhật ký ca trực.
+
+Quy trình check-out:
+1. Thu hồi thẻ khách tạm.
+2. Quét xác nhận rời cổng.
+3. Cập nhật trạng thái CHECKED_OUT.
+4. Nếu khách ra quá giờ, gắn cờ OVERDUE_RESOLVED và ghi chú lý do.
+
+Từ chối cho vào khi:
+- Không có hồ sơ APPROVED.
+- Giấy tờ không khớp với hồ sơ.
+- QR hết hạn/đã dùng sai quy tắc.
+- Có cảnh báo an ninh mức cao.
+
+Điểm kiểm soát:
+- Không cho vào bằng xác nhận miệng.
+- Không bỏ qua bước đối chiếu giấy tờ.
+- Không dùng tài khoản ca trực của người khác.
+
+8.4 SOP cho Admin
+Mục tiêu: Đảm bảo hệ thống ổn định, dữ liệu chuẩn, báo cáo đầy đủ.
+
+Nhiệm vụ hàng ngày:
+1. Kiểm tra dashboard vận hành đầu ngày.
+2. Theo dõi cảnh báo OVERDUE, từ chối bất thường, lỗi quét.
+3. Đối soát cuối ngày:
+4. Danh sách chưa CHECKED_OUT.
+5. Danh sách check-in không QR.
+6. Danh sách chỉnh sửa hồ sơ sau phê duyệt.
+7. Xuất báo cáo ngày cho An ninh/HCNS.
+
+Nhiệm vụ hàng tuần:
+1. Rà soát phân quyền tài khoản.
+2. Kiểm tra log truy cập bất thường.
+3. Kiểm tra SLA duyệt và SLA cổng.
+4. Họp cải tiến với Security và bộ phận liên quan.
+
+Nhiệm vụ hàng tháng:
+1. Tổng hợp KPI.
+2. Đề xuất cập nhật chính sách.
+3. Kiểm thử quy trình dự phòng khi mất mạng/mất điện.
+
+Điểm kiểm soát:
+- Audit log phải lưu đầy đủ, không chỉnh sửa xóa thủ công.
+- Tài khoản nhạy cảm bắt buộc MFA.
+- Sao lưu dữ liệu theo chính sách IT.
+
+9. SOP ngoại lệ
+
+9.1 Khách không có QR
+1. Security tạo hồ sơ tạm tại cổng.
+2. Gọi xác nhận người phụ trách nội bộ.
+3. Approver cấp quyền khẩn trên hệ thống.
+4. Security mới cho check-in.
+5. Gắn cờ MANUAL_ENTRY để audit.
+
+9.2 Quên giấy tờ
+1. Từ chối check-in.
+2. Cho phép chờ tại khu vực tiếp nhận.
+3. Chỉ xử lý tiếp khi có giấy tờ hợp lệ hoặc phê duyệt đặc biệt cấp an ninh.
+
+9.3 Mất mạng/mất hệ thống
+1. Chuyển sang sổ tay offline mẫu chuẩn.
+2. Ghi đầy đủ thời gian, giấy tờ, người xác nhận.
+3. Đồng bộ lại hệ thống trong <= 2 giờ sau khi khôi phục.
+4. Admin đối soát bản ghi offline và online.
+
+9.4 Báo động an ninh
+1. Security khóa luồng check-in mới.
+2. Thông báo ngay cho quản lý an ninh.
+3. Thực hiện quy trình khẩn cấp của doanh nghiệp.
+4. Lưu biên bản sự cố và timeline xử lý.
+
+10. KPI vận hành
+- Tỷ lệ check-in xử lý trong <= 60 giây: mục tiêu >= 95%.
+- Tỷ lệ duyệt đúng SLA: mục tiêu >= 98%.
+- Tỷ lệ bản ghi OVERDUE: mục tiêu <= 1%.
+- Tỷ lệ hồ sơ bị từ chối do thiếu dữ liệu: mục tiêu <= 3%.
+- Tỷ lệ log đầy đủ cho giao dịch nhạy cảm: mục tiêu 100%.
+
+11. Biểu mẫu bắt buộc
+- FM-01: Phiếu đăng ký khách/đối tác.
+- FM-02: Phiếu xác nhận ngoại lệ tại cổng.
+- FM-03: Nhật ký ca trực Security.
+- FM-04: Báo cáo đối soát cuối ngày.
+- FM-05: Báo cáo sự cố an ninh.
+
+12. Quy định tuân thủ và kỷ luật
+- Vi phạm bỏ qua bước xác minh giấy tờ: xử lý theo nội quy an ninh.
+- Chia sẻ tài khoản hoặc thao tác hộ không ủy quyền: xử lý kỷ luật.
+- Cố ý nhập sai dữ liệu: xử lý theo quy chế công ty và pháp luật hiện hành.
+
+13. Kế hoạch triển khai trong 7 ngày
+1. Ngày 1: Ban hành SOP và truyền thông nội bộ.
+2. Ngày 2: Cấu hình hệ thống theo vai trò.
+3. Ngày 3: Đào tạo Requester + Approver.
+4. Ngày 4: Đào tạo Security theo checklist ca trực.
+5. Ngày 5: Chạy thử UAT tại 1 cổng.
+6. Ngày 6: Sửa lỗi quy trình, chốt biểu mẫu.
+7. Ngày 7: Go-live toàn bộ và theo dõi sát 48 giờ.

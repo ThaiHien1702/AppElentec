@@ -1,0 +1,120 @@
+@baseUrl = http://localhost:5001/api
+@token = REPLACE_WITH_ACCESS_TOKEN
+
+### Health check (expect 404/route response if server is up)
+GET {{baseUrl}}/auth
+
+### Signup
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "admin",
+  "password": "123456",
+  "email": "admin@gmail.com",
+  "displayName": "Thái Hiền"
+}
+
+### Signin
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "idCompanny": "admin",
+  "password": "123456"
+}
+
+### Get profile (requires Bearer token from signin response)
+GET {{baseUrl}}/auth/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+### ==============================
+### Computer Management API Flow
+### ==============================
+
+### GET all computers
+GET {{baseUrl}}/computers
+Authorization: Bearer {{token}}
+
+### GET computers by filter
+GET {{baseUrl}}/computers?department=IT&status=Active
+Authorization: Bearer {{token}}
+
+### SEARCH computers
+GET {{baseUrl}}/computers/search?q=PC
+Authorization: Bearer {{token}}
+
+### GET stats by department
+GET {{baseUrl}}/computers/stats/by-dept
+Authorization: Bearer {{token}}
+
+### POST create computer
+POST {{baseUrl}}/computers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employeeNo": "EMP-DEMO-001",
+  "email": "demo-computer@example.com",
+  "phone": "0900000000",
+  "userName": "Demo User",
+  "position": "Engineer",
+  "department": "IT",
+  "ipAddress": "192.168.1.100",
+  "macAddress": "AA:BB:CC:DD:EE:11",
+  "computerName": "PC-DEMO-001",
+  "userNamePc": "demo.user",
+  "categories": "Laptop",
+  "manufacturer": "Dell",
+  "serviceTag": "SV-DEMO-001",
+  "systemModel": "Latitude 7440",
+  "cpu": "Intel Core i7",
+  "ram": "16GB",
+  "hdd": "",
+  "ssd": "512GB",
+  "vga": "Intel Iris Xe",
+  "other": "",
+  "status": "Active",
+  "notes": "Create from request.http"
+}
+
+### PUT update computer by id
+PUT {{baseUrl}}/computers/REPLACE_COMPUTER_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Under Maintenance",
+  "ram": "32GB",
+  "notes": "Updated from request.http"
+}
+
+### DELETE computer by id
+DELETE {{baseUrl}}/computers/REPLACE_COMPUTER_ID
+Authorization: Bearer {{token}}
+
+### EXPORT computers to Excel
+GET {{baseUrl}}/computers/export
+Authorization: Bearer {{token}}
+
+### EXPORT computers to Excel with filter
+GET {{baseUrl}}/computers/export?department=IT&status=Active
+Authorization: Bearer {{token}}
+
+### DOWNLOAD import template Excel
+GET {{baseUrl}}/computers/template
+Authorization: Bearer {{token}}
+
+### IMPORT computers from Excel
+POST {{baseUrl}}/computers/import
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="computers-import.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< ./computers-import.xlsx
+--WebAppBoundary--

@@ -1,0 +1,29 @@
+{
+  "name": "elentec",
+  "version": "1.0.0",
+  "description": "Ứng dụng full-stack sử dụng **React + Vite** (frontend) và **Node.js + Express + MongoDB** (backend) với hệ thống phân quyền 4 cấp.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThaiHien1702/Elentec2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ThaiHien1702/Elentec2/issues"
+  },
+  "homepage": "https://github.com/ThaiHien1702/Elentec2#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

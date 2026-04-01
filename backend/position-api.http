@@ -1,0 +1,190 @@
+### Position Hierarchy API Testing
+
+# Variables
+@baseUrl = http://localhost:5001/api
+@adminToken = 
+
+# ====================================================
+# STEP 1: Create Admin User and Get Token
+# ====================================================
+
+### Create Admin User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "admin_hierarchy",
+  "password": "test123",
+  "displayName": "Admin User",
+  "role": "admin",
+  "position": "Manager"
+}
+
+### Login Admin User (Get Token)
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+  "idCompanny": "admin_hierarchy",
+  "password": "test123"
+}
+
+# Copy the accessToken from response and set as @adminToken
+
+# ====================================================
+# STEP 2: Create Test Users with Different Positions
+# ====================================================
+
+### Create Manager User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "manager_test",
+  "password": "test123",
+  "displayName": "John Manager",
+  "position": "Manager"
+}
+
+### Create Assistant Manager User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "asst_mgr_test",
+  "password": "test123",
+  "displayName": "Jane Assistant Manager",
+  "position": "Assistant Manager"
+}
+
+### Create Supervisor User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "supervisor_test",
+  "password": "test123",
+  "displayName": "Bob Supervisor",
+  "position": "Supervisor"
+}
+
+### Create Staff User
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "idCompanny": "staff_test",
+  "password": "test123",
+  "displayName": "Alice Staff",
+  "position": "Staff"
+}
+
+# ====================================================
+# STEP 3: Test Position Hierarchy Endpoints
+# ====================================================
+
+### Get Position Hierarchy
+GET {{baseUrl}}/positions/hierarchy
+Authorization: Bearer {{adminToken}}
+
+### Get All Users with Positions
+GET {{baseUrl}}/positions/users
+Authorization: Bearer {{adminToken}}
+
+### Get Users by Specific Position
+GET {{baseUrl}}/positions/users?position=Manager
+Authorization: Bearer {{adminToken}}
+
+### Get Current User's Position Info
+GET {{baseUrl}}/positions/my-info
+Authorization: Bearer {{adminToken}}
+
+### Get Position Statistics
+GET {{baseUrl}}/positions/statistics
+Authorization: Bearer {{adminToken}}
+
+### Get Subordinates of a Position
+GET {{baseUrl}}/positions/subordinates?position=Manager
+Authorization: Bearer {{adminToken}}
+
+# ====================================================
+# STEP 4: Update User Position (Admin Only)
+# ====================================================
+
+### Update User Position to Manager
+### Note: Replace USER_ID with actual user's MongoDB ID from GET users response
+PUT {{baseUrl}}/positions/USER_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "position": "Manager"
+}
+
+### Update User Position to Assistant Manager
+PUT {{baseUrl}}/positions/USER_ID
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "position": "Assistant Manager"
+}
+
+# ====================================================
+# STEP 5: Bulk Update Positions (Admin Only)
+# ====================================================
+
+### Bulk Update Multiple User Positions
+POST {{baseUrl}}/positions/bulk-update
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "updates": [
+    {
+      "userId": "USER_ID_1",
+      "position": "Supervisor"
+    },
+    {
+      "userId": "USER_ID_2",
+      "position": "Assistant Manager"
+    },
+    {
+      "userId": "USER_ID_3",
+      "position": "Staff"
+    }
+  ]
+}
+
+# ====================================================
+# Position Hierarchy Levels (IMPORTANT)
+# ====================================================
+# Manager (Level 4) - Highest Authority
+#   ├─> Can manage all users and positions
+#   ├─> Can view reports
+#   ├─> Can delete data
+#   ├─> Can import/export data
+#   └─> Can edit all computers
+#
+# Assistant Manager (Level 3)
+#   ├─> Can view reports
+#   ├─> Can import/export data
+#   ├─> Can edit all computers
+#   └─> Cannot manage positions or delete data
+#
+# Supervisor (Level 2)
+#   ├─> Can view reports
+#   ├─> Can export data
+#   └─> Cannot perform other operations
+#
+# Staff (Level 1) - Lowest Level
+#   └─> Can only view their own data
+#
+# ====================================================
+# Error Codes
+# ====================================================
+# 400 - Bad Request (invalid position, missing required fields)
+# 401 - Unauthorized (missing or invalid token)
+# 403 - Forbidden (insufficient permissions for the operation)
+# 404 - Not Found (user not found)
+# 500 - Server Error
