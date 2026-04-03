@@ -62,6 +62,13 @@ const GateConsole = () => {
     };
   }, []);
 
+  // Khi cameraOpen chuyển sang true, <video> được render và videoRef sẵn sàng.
+  useEffect(() => {
+    if (cameraOpen && videoRef.current && mediaStreamRef.current) {
+      videoRef.current.srcObject = mediaStreamRef.current;
+    }
+  }, [cameraOpen]);
+
   const stopCamera = () => {
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());

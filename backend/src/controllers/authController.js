@@ -53,19 +53,20 @@ export const signUp = async (req, res) => {
     // mã hoá password
     const hashedPassword = await bcrypt.hash(password, 10); // salt = 10
 
-    // tạo user mới - role có thể được truyền vào hoặc mặc định là "user"
+    // tạo user mới - chỉ admin mới được truyền role/position
+    const isAdminRequest = req.userRole === "admin";
     const createPayload = {
       idCompanny: normalizedIdCompanny,
       hashedPassword,
       displayName,
-      role: role || "user",
+      role: isAdminRequest && role ? role : "user",
     };
 
     if (normalizedEmail) {
       createPayload.email = normalizedEmail;
     }
 
-    if (normalizedPosition) {
+    if (isAdminRequest && normalizedPosition) {
       createPayload.position = normalizedPosition;
     }
 
