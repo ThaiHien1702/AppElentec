@@ -3,6 +3,7 @@ import VisitRequest from "../models/VisitRequest.js";
 import AccessPolicyEntry from "../models/AccessPolicyEntry.js";
 import AuditLog from "../models/AuditLog.js";
 import GateCard from "../models/GateCard.js";
+import Luggage from "../models/Luggage.js";
 
 // Sinh mã yêu cầu dạng REQ-YYYYMMDD-XXXX để dễ tra cứu tại cổng.
 const generateRequestCode = () => {
@@ -959,6 +960,43 @@ export const gateManualDeny = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi khi ghi nhận từ chối thủ công", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+/**
+ * Lấy chi tiết yêu cầu ra/vào với danh sách hành lý
+ */
+export const getVisitDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID yêu cầu không hợp lệ" });
+    }
+
+    const visit = await VisitRequest.findById(id)
+      .populate("requestedBy", "displayName idCompanny department")
+      .populate("approvedBy", "displayName idCompanny")
+      .populate("rejectedBy", "displayName idCompanny");
+
+    if (!visit) {
+      return res.status(404).json({ message: "Yêu cầu không tồn tại" });
+    }
+
+    // Lấy danh sách hành lý
+    const luggage = await Luggage.find({ visitRequest: id })
+      .populate("checkedInBy", "displayName idCompanny")
+      .populate("checkedOutBy", "displayName idCompanny")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      visit,
+      luggage,
+      luggageCount: luggage.length,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết yêu cầu", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

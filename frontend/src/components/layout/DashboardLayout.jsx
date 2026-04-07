@@ -10,6 +10,7 @@ import {
   ScanLine,
   CheckCheck,
   BarChart3,
+  Package,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -84,6 +85,12 @@ const DashboardLayout = ({ children }) => {
           name: "Approval Inbox",
           path: "/access/approvals",
           icon: CheckCheck,
+          show: canAccessManagement,
+        },
+        {
+          name: "Luggage Management",
+          path: "/access/luggage",
+          icon: Package,
           show: canAccessManagement,
         },
         {

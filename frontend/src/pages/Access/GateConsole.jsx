@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { handleApiError, handleApiSuccess } from "../../utils/apiHandler";
+import LuggageForm from "./LuggageForm";
+import LuggageList from "./LuggageList";
 
 // Bản đồ trạng thái backend -> nhãn hiển thị tiếng Việt.
 const statusText = {
@@ -36,6 +38,8 @@ const GateConsole = () => {
   // Danh sách thẻ để vận hành nhanh tại cổng.
   const [gateCards, setGateCards] = useState([]);
   const [newCardCode, setNewCardCode] = useState("");
+  // Refresh trigger cho LuggageList
+  const [luggageRefreshTrigger, setLuggageRefreshTrigger] = useState(0);
   const [loadingCards, setLoadingCards] = useState(false);
 
   const fetchGateCards = async () => {
@@ -564,6 +568,29 @@ const GateConsole = () => {
               </p>
             ) : null}
           </div>
+        )}
+
+        {/* Luggage Management Section */}
+        {currentVisit && (
+          <>
+            {/* Luggage Form - Thêm hành lý */}
+            <LuggageForm
+              visitId={currentVisit._id}
+              onSubmitSuccess={() =>
+                setLuggageRefreshTrigger(luggageRefreshTrigger + 1)
+              }
+            />
+
+            {/* Luggage List - Danh sách hành lý */}
+            <LuggageList
+              visitId={currentVisit._id}
+              refreshTrigger={luggageRefreshTrigger}
+              onSelectLuggage={(luggage) => {
+                // Có thể thêm modal hoặc chi tiết hành lý ở đây
+                console.log("Selected luggage:", luggage);
+              }}
+            />
+          </>
         )}
 
         <div className="mt-8 border-t border-slate-200 pt-5">

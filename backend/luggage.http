@@ -1,0 +1,130 @@
+### Test Luggage API
+### Sử dụng với REST Client extension trong VS Code
+
+@baseUrl = http://localhost:5001/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### 1. Thêm Hành Lý Mới
+POST {{baseUrl}}/luggage
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "visitRequestId": "65f3c4a1b2c3d4e5f6g7h8i9",
+  "itemName": "Ba lô xanh",
+  "description": "Ba lô nylon, màu xanh lá, logo Nike",
+  "quantity": 1,
+  "itemType": "LUGGAGE",
+  "estimatedValue": 500000,
+  "itemImageData": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+}
+
+### 2. Lấy Danh Sách Hành Lý Theo Yêu Cầu
+GET {{baseUrl}}/luggage/visit/65f3c4a1b2c3d4e5f6g7h8i9
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 3. Check-out Hành Lý
+PATCH {{baseUrl}}/luggage/65f3c4a1b2c3d4e5f6g7h8i9/checkout
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "returnImageData": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "notes": "Vật dụng còn nguyên vẹn, không tổn hại"
+}
+
+### 4. Cập Nhật Trạng Thái Hành Lý (Mất)
+PATCH {{baseUrl}}/luggage/65f3c4a1b2c3d4e5f6g7h8i9/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "LOST",
+  "notes": "Khách báo mất ba lô tại cổng"
+}
+
+### 5. Cập Nhật Trạng Thái Hành Lý (Hư Hỏng)
+PATCH {{baseUrl}}/luggage/65f3c4a1b2c3d4e5f6g7h8i9/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "DAMAGED",
+  "notes": "Vật dụng bị nước làm ẩm"
+}
+
+### 6. Cập Nhật Trạng Thái Hành Lý (Trả Lại)
+PATCH {{baseUrl}}/luggage/65f3c4a1b2c3d4e5f6g7h8i9/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "RETURNED",
+  "notes": "Đã trả lại cho khách"
+}
+
+### 7. Xóa Hành Lý
+DELETE {{baseUrl}}/luggage/65f3c4a1b2c3d4e5f6g7h8i9
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 8. Lấy Tất Cả Hành Lý (Không Bộ Lọc)
+GET {{baseUrl}}/luggage
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 9. Lấy Tất Cả Hành Lý (Lọc Theo Trạng Thái CHECKED_IN)
+GET {{baseUrl}}/luggage?status=CHECKED_IN
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 10. Lấy Tất Cả Hành Lý (Lọc Theo Loại LUGGAGE)
+GET {{baseUrl}}/luggage?itemType=LUGGAGE&page=1&limit=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 11. Thống Kê Hành Lý
+GET {{baseUrl}}/luggage/stats/summary
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 12. Lấy Chi Tiết Yêu Cầu Ra/Vào (Với Danh Sách Hành Lý)
+GET {{baseUrl}}/visits/65f3c4a1b2c3d4e5f6g7h8i9
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 13. Tạo Yêu Cầu Ra/Vào Mới (Trước Khi Thêm Hành Lý)
+POST {{baseUrl}}/visits
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "subjectType": "GUEST",
+  "visitorName": "Nguyễn Thị C",
+  "visitorPhone": "0901234567",
+  "visitorCompany": "Công ty ABC",
+  "idType": "CCCD",
+  "idNumber": "123456789012",
+  "vehiclePlate": "29H1-12345",
+  "purpose": "Họp lâu dài",
+  "hostName": "Nguyễn Văn A",
+  "areaAllowed": "Khu A",
+  "expectedCheckInAt": "2026-04-07T09:00:00Z",
+  "expectedCheckOutAt": "2026-04-07T17:00:00Z",
+  "safetyChecklistCompleted": false
+}
+
+### 14. Check-in Khách (Mở Từ Đây Bắt Đầu Quản Lý Hành Lý)
+POST {{baseUrl}}/gate/check-in
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "visitId": "65f3c4a1b2c3d4e5f6g7h8i9",
+  "gateCardCode": "CARD-001",
+  "cccdQrData": "123456789012",
+  "portraitImageData": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+}
+
+### Note: Thay thế các ObjectId và token bằng giá trị thực tế từ ứng dụng

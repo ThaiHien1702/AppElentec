@@ -90,7 +90,25 @@ export const API_PATHS = {
   GATE_CARDS: `${BASE_URL}/gate/cards`,
   GATE_REGISTER_CARD: `${BASE_URL}/gate/cards`,
   GATE_TOGGLE_CARD: `${BASE_URL}/gate/cards/toggle`,
-
+  // Luggage management endpoints
+  LUGGAGE_ADD: `${BASE_URL}/luggage`,
+  LUGGAGE_LIST: `${BASE_URL}/luggage`,
+  LUGGAGE_BY_VISIT: (visitId) => `${BASE_URL}/luggage/visit/${visitId}`,
+  LUGGAGE_BY_ID: (id) => `${BASE_URL}/luggage/${id}`,
+  LUGGAGE_CHECKOUT: (id) => `${BASE_URL}/luggage/${id}/checkout`,
+  LUGGAGE_UPDATE_STATUS: (id) => `${BASE_URL}/luggage/${id}/status`,
+  LUGGAGE_DELETE: (id) => `${BASE_URL}/luggage/${id}`,
+  LUGGAGE_STATS: `${BASE_URL}/luggage/stats/summary`,
+  LUGGAGE_WITH_FILTERS: (status, visitId, itemType, page, limit) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (visitId) params.append("visitRequestId", visitId);
+    if (itemType) params.append("itemType", itemType);
+    if (page) params.append("page", page);
+    if (limit) params.append("limit", limit);
+    const query = params.toString();
+    return query ? `${BASE_URL}/luggage?${query}` : `${BASE_URL}/luggage`;
+  },
   REPORT_REALTIME: `${BASE_URL}/reports/realtime`,
   REPORT_DAILY: `${BASE_URL}/reports/daily`,
   REPORT_OVERDUE: `${BASE_URL}/reports/overdue`,

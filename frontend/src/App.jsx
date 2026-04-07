@@ -20,6 +20,7 @@ import GateConsole from "./pages/Access/GateConsole";
 import VisitRequestForm from "./pages/Access/VisitRequestForm";
 import ApprovalInbox from "./pages/Access/ApprovalInbox";
 import AccessReportPage from "./pages/Access/AccessReportPage";
+import LuggagePage from "./pages/Access/LuggagePage";
 
 const App = () => {
   return (
@@ -83,6 +84,14 @@ const App = () => {
               element={
                 <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
                   <AccessReportPage />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="access/luggage"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <LuggagePage />
                 </RoleProtectedRoute>
               }
             />

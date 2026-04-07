@@ -13,6 +13,7 @@ import approvalRoutes from "./routes/approvalRoutes.js";
 import gateRoutes from "./routes/gateRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import accessPolicyRoutes from "./routes/accessPolicyRoutes.js";
+import luggageRoutes from "./routes/luggageRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -31,14 +32,20 @@ const allowedOrigins = (
   .filter(Boolean);
 
 //middleware
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, callback) => {
       const normalizedOrigin = normalizeOrigin(origin);
 
-      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+      // Allow requests without origin (same-origin, mobile apps, Postman, etc.)
+      if (
+        !origin ||
+        !normalizedOrigin ||
+        allowedOrigins.includes(normalizedOrigin)
+      ) {
         return callback(null, true);
       }
       return callback(new Error("Not allowed by CORS"));
@@ -57,6 +64,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/visits", visitRoutes);
 app.use("/api/approvals", approvalRoutes);
 app.use("/api/gate", gateRoutes);
+app.use("/api/luggage", luggageRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/access-control", accessPolicyRoutes);
 

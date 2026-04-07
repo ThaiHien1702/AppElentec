@@ -7,6 +7,10 @@ import toast from "react-hot-toast";
  * @returns {string} - Thông báo lỗi
  */
 export const handleApiError = (error, defaultMsg = "Có lỗi xảy ra") => {
+  if (!error) {
+    toast.error(defaultMsg);
+    return defaultMsg;
+  }
   const message = error.response?.data?.message || error.message || defaultMsg;
   toast.error(message);
   return message;
