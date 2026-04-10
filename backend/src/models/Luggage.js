@@ -97,7 +97,6 @@ const luggageSchema = new mongoose.Schema(
 
 // Index để tìm nhanh hành lý theo yêu cầu ra/vào
 luggageSchema.index({ visitRequest: 1, status: 1 });
-luggageSchema.index({ trackingCode: 1 });
 luggageSchema.index({ createdAt: -1 });
 
 export default mongoose.model("Luggage", luggageSchema);
