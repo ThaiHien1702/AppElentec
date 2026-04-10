@@ -123,6 +123,16 @@ export const API_PATHS = {
   ACCESS_POLICIES: `${BASE_URL}/access-control/policies`,
   ACCESS_POLICY_TOGGLE: (id) =>
     `${BASE_URL}/access-control/policies/${id}/toggle`,
+
+  // Leave management endpoints
+  LEAVES: `${BASE_URL}/leaves`,
+  LEAVES_MY: `${BASE_URL}/leaves/my`,
+  LEAVES_STATS: `${BASE_URL}/leaves/stats`,
+  LEAVES_BY_ID: (id) => `${BASE_URL}/leaves/${id}`,
+  LEAVES_UPDATE: (id) => `${BASE_URL}/leaves/${id}`,
+  LEAVES_CANCEL: (id) => `${BASE_URL}/leaves/${id}/cancel`,
+  LEAVES_APPROVE: (id) => `${BASE_URL}/leaves/${id}/approve`,
+  LEAVES_REJECT: (id) => `${BASE_URL}/leaves/${id}/reject`,
 };
 
 export default API_PATHS;

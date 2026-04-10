@@ -61,7 +61,7 @@ const ApprovalInbox = () => {
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">
-            Hộp thư phê duyệtss
+            Hộp thư phê duyệt
           </h1>
           <p className="mt-1 text-sm text-slate-600">
             Danh sách yêu cầu chờ phê duyệt theo SOP.

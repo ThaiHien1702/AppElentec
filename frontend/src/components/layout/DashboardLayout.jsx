@@ -11,6 +11,9 @@ import {
   CheckCheck,
   BarChart3,
   Package,
+  Calendar,
+  Plus,
+  Box,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -69,6 +72,11 @@ const DashboardLayout = ({ children }) => {
           icon: ShieldCheck,
           show: isAdmin(),
         },
+      ],
+    },
+    {
+      title: "Quản lý Truy cập",
+      items: [
         {
           name: "Đăng ký ra/vào cổng",
           path: "/access/requests",
@@ -87,17 +95,39 @@ const DashboardLayout = ({ children }) => {
           icon: CheckCheck,
           show: canAccessManagement,
         },
+      ],
+    },
+    {
+      title: "Kho Hàng",
+      items: [
         {
           name: "Quản lý đồ đạc",
-          path: "/access/luggage",
-          icon: Package,
+          path: "/luggage",
+          icon: Box,
           show: canAccessManagement,
         },
         {
-          name: "Báo cáo truy cập",
-          path: "/access/reports",
-          icon: BarChart3,
+          name: "Ghi nhận vật dụng",
+          path: "/luggage/register",
+          icon: Plus,
           show: canAccessManagement,
+        },
+      ],
+    },
+    {
+      title: "Nhân sự",
+      items: [
+        {
+          name: "Quản lý nghỉ phép",
+          path: "/leave",
+          icon: Calendar,
+          show: true, // Tất cả user đều có thể truy cập
+        },
+        {
+          name: "Đăng ký nghỉ phép",
+          path: "/leave/register",
+          icon: Plus,
+          show: true, // Tất cả user đều có thể truy cập
         },
       ],
     },
