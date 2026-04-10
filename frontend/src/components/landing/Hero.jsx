@@ -24,7 +24,7 @@ const Hero = () => {
                 to="/dashboard"
                 className="bg-linear-to-r from-blue-400 to-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-blue-500 transition-all duration-200 hover:scale-105 hover:shadow-2xs transform"
               >
-                Go To Dashboard
+                Đi tới bảng điều khiển
               </Link>
             ) : (
               <Link
@@ -32,7 +32,7 @@ const Hero = () => {
                 className="bg-linear-to-r from-blue-400 to-blue-500 text-white px-8 py-4 rounded-xl text-base sm:text-lg hover:bg-gray-800 transition-all duration-200 hover:scale-105 hover:shadow-2xl transform"
               >
                 {" "}
-                Get Started for Free
+                Bắt đầu miễn phí
               </Link>
             )}
             <a
@@ -40,7 +40,7 @@ const Hero = () => {
               className="border-2 border-black text-black px-8 py-4 rounded-xl text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-200 hover:scale-105"
             >
               {" "}
-              Learn More
+              Tìm hiểu thêm
             </a>
           </div>
         </div>

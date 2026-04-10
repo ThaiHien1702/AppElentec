@@ -642,15 +642,15 @@ const ComputerManagement = () => {
             tabs={[
               {
                 id: "computerInfo",
-                label: "Computer Information",
+                label: "Thông tin máy tính",
                 content: (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-gray-50 rounded-lg p-4 space-y-4">
                       <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                        Information
+                        Thông tin
                       </h3>
                       <FormField
-                        label="Asset Code"
+                        label="Mã tài sản"
                         type="text"
                         name="assetCode"
                         value={formData.assetCode}
@@ -658,7 +658,7 @@ const ComputerManagement = () => {
                         placeholder="ELT-LAP-001"
                       />
                       <FormField
-                        label="Computer Name *"
+                        label="Tên máy tính *"
                         type="text"
                         name="computerName"
                         value={formData.computerName}
@@ -666,7 +666,7 @@ const ComputerManagement = () => {
                         required
                       />
                       <FormField
-                        label="IP Address"
+                        label="Địa chỉ IP"
                         type="text"
                         name="ipAddress"
                         value={formData.ipAddress}
@@ -674,7 +674,7 @@ const ComputerManagement = () => {
                         placeholder="192.168.1.100"
                       />
                       <FormField
-                        label="MAC Address"
+                        label="Địa chỉ MAC"
                         type="text"
                         name="macAddress"
                         value={formData.macAddress}
@@ -682,14 +682,14 @@ const ComputerManagement = () => {
                         placeholder="00:1A:2B:3C:4D:5E"
                       />
                       <FormField
-                        label="Your Info PC"
+                        label="Thông tin PC của bạn"
                         type="text"
                         name="userNamePc"
                         value={formData.userNamePc}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Manufacturer"
+                        label="Nhà sản xuất"
                         type="text"
                         name="manufacturer"
                         value={formData.manufacturer}
@@ -704,7 +704,7 @@ const ComputerManagement = () => {
                         options={COMPUTER_TYPES}
                       />
                       <SelectField
-                        label="Status"
+                        label="Trạng thái"
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
@@ -714,59 +714,59 @@ const ComputerManagement = () => {
 
                     <div className="bg-gray-50 rounded-lg p-4 space-y-4">
                       <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">
-                        PC Configuration
+                        Cấu hình PC
                       </h3>
                       <FormField
-                        label="Model"
+                        label="Mô hình"
                         type="text"
                         name="systemModel"
                         value={formData.systemModel}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Service Tag / Serial"
+                        label="Thẻ dịch vụ"
                         type="text"
                         name="serviceTag"
                         value={formData.serviceTag}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="CPU"
+                        label="Bộ xử lý trung tâm"
                         type="text"
                         name="cpu"
                         value={formData.cpu}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="RAM"
+                        label="Bộ nhớ"
                         type="text"
                         name="ram"
                         value={formData.ram}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="SSD"
+                        label="Ổ cứng SSD"
                         type="text"
                         name="ssd"
                         value={formData.ssd}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="HDD"
+                        label="Ổ cứng HDD"
                         type="text"
                         name="hdd"
                         value={formData.hdd}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="VGA"
+                        label="Bộ xử lý đồ họa"
                         type="text"
                         name="vga"
                         value={formData.vga}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Other"
+                        label="Khác"
                         type="text"
                         name="other"
                         value={formData.other}
@@ -778,7 +778,7 @@ const ComputerManagement = () => {
               },
               {
                 id: "userInfo",
-                label: "User Information",
+                label: "Thông tin người dùng",
                 content: (
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -816,14 +816,14 @@ const ComputerManagement = () => {
                     />
 
                     <FormField
-                      label="Phone"
+                      label="Điện thoại"
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                     />
                     <SelectField
-                      label="Position"
+                      label="Vị trí"
                       name="position"
                       value={formData.position}
                       onChange={handleChange}
@@ -834,18 +834,18 @@ const ComputerManagement = () => {
               },
               {
                 id: "os",
-                label: "OS",
+                label: "Hệ điều hành",
                 content: (
                   <div className="space-y-4">
                     <SelectField
-                      label="Version OS"
+                      label="Phiên bản hệ điều hành"
                       name="osVersion"
                       value={formData.osVersion}
                       onChange={handleChange}
                       options={OS_VERSIONS}
                     />
                     <SelectField
-                      label="OS License"
+                      label="Giấy phép hệ điều hành"
                       name="osLicense"
                       value={formData.osLicense}
                       onChange={handleChange}

@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }) => {
       title: "Tổng quan",
       items: [
         {
-          name: `Departments - ${currentDepartmentLabel}`,
+          name: `Bộ Phận - ${currentDepartmentLabel}`,
           path: "/dashboard",
           icon: LayoutDashboard,
           show: true,
@@ -58,7 +58,7 @@ const DashboardLayout = ({ children }) => {
           show: isAdmin(), // Admin sẽ thấy Departments ở phần Quản lý
         },
         {
-          name: "Computer Management",
+          name: "Quản lý máy tính",
           path: "/it/computers",
           icon: Monitor,
           show: isAdmin(),
@@ -70,31 +70,31 @@ const DashboardLayout = ({ children }) => {
           show: isAdmin(),
         },
         {
-          name: "Visit Requests",
+          name: "Đăng ký ra/vào cổng",
           path: "/access/requests",
           icon: ClipboardList,
           show: canAccessManagement,
         },
         {
-          name: "Gate Console",
+          name: "Check-in/Check-out",
           path: "/access/gate",
           icon: ScanLine,
           show: canAccessManagement,
         },
         {
-          name: "Approval Inbox",
+          name: "Phê duyệt yêu cầu",
           path: "/access/approvals",
           icon: CheckCheck,
           show: canAccessManagement,
         },
         {
-          name: "Luggage Management",
+          name: "Quản lý đồ đạc",
           path: "/access/luggage",
           icon: Package,
           show: canAccessManagement,
         },
         {
-          name: "Access Reports",
+          name: "Báo cáo truy cập",
           path: "/access/reports",
           icon: BarChart3,
           show: canAccessManagement,

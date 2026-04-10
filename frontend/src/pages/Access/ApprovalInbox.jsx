@@ -61,7 +61,7 @@ const ApprovalInbox = () => {
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-800">
-            Approval Inbox
+            Hộp thư phê duyệtss
           </h1>
           <p className="mt-1 text-sm text-slate-600">
             Danh sách yêu cầu chờ phê duyệt theo SOP.
@@ -122,7 +122,7 @@ const ApprovalInbox = () => {
                   className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
                   onClick={() => approve(item._id)}
                 >
-                  Approve
+                  Phê duyệt
                 </button>
                 <button
                   type="button"
@@ -131,7 +131,7 @@ const ApprovalInbox = () => {
                     setRejectingId(rejectingId === item._id ? null : item._id)
                   }
                 >
-                  Reject
+                  Từ chối
                 </button>
               </div>
 
