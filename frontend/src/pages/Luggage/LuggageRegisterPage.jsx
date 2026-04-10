@@ -151,7 +151,10 @@ export default function LuggageRegisterPage() {
               />
             </FormField>
 
-            <FormField label="Giá trị ước tính (VNĐ)" error={errors.estimatedValue}>
+            <FormField
+              label="Giá trị ước tính (VNĐ)"
+              error={errors.estimatedValue}
+            >
               <input
                 type="number"
                 value={formData.estimatedValue}
@@ -188,12 +191,14 @@ export default function LuggageRegisterPage() {
         <h3 className="font-semibold text-blue-900 mb-2">Lưu ý:</h3>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>
-            • Mỗi vật dụng được ghi nhận với một mã tracking duy nhất để theo dõi
+            • Mỗi vật dụng được ghi nhận với một mã tracking duy nhất để theo
+            dõi
           </li>
           <li>• Vui lòng cung cấp mô tả chi tiết để dễ nhận diện</li>
           <li>• Giá trị ước tính được sử dụng cho mục đích bảo hiểm</li>
           <li>
-            • Bạn có thể cập nhật trạng thái vật dụng sau khi ghi nhận thành công
+            • Bạn có thể cập nhật trạng thái vật dụng sau khi ghi nhận thành
+            công
           </li>
         </ul>
       </div>
