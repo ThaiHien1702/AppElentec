@@ -32,7 +32,7 @@ export const leaveService = {
     if (limit) params.append("limit", limit);
 
     const query = params.toString();
-    const url = query ? `${API_PATHS.LEAVES}?${query}` : API_PATHS.LEAVES;
+    const url = query ? `${API_PATHS.LEAVES_ALL}?${query}` : API_PATHS.LEAVES_ALL;
 
     const response = await axiosInstance.get(url);
     return response.data;

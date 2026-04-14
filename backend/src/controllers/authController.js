@@ -110,13 +110,13 @@ export const signIn = async (req, res) => {
     // Nếu user không tồn tại, user = null
     if (!user) {
       return res
-        .status(409)
+        .status(401)
         .json({ message: "idCompanny hoặc password không đúng" });
     }
     const passwordCorrect = await bcrypt.compare(password, user.hashedPassword); // ❌ CRASH
     if (!passwordCorrect) {
       return res
-        .status(409)
+        .status(401)
         .json({ message: "idCompanny hoặc password không đúng" });
     }
     const accessToken = jwt.sign(

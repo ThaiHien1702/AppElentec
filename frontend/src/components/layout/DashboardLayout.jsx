@@ -14,6 +14,7 @@ import {
   Calendar,
   Plus,
   Box,
+  Clock,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -127,7 +128,19 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký nghỉ phép",
           path: "/leave/register",
           icon: Plus,
-          show: true, // Tất cả user đều có thể truy cập
+          show: true,
+        },
+        {
+          name: "Đăng ký giờ làm thêm",
+          path: "/overtime",
+          icon: Clock,
+          show: true,
+        },
+        {
+          name: "Đăng ký OT mới",
+          path: "/overtime/register",
+          icon: Plus,
+          show: true,
         },
       ],
     },

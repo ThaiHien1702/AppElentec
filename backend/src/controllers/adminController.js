@@ -3,6 +3,13 @@ import Department from "../models/Department.js";
 import bcrypt from "bcrypt";
 import { setUserDepartmentMembership } from "../utils/departmentMembership.js";
 
+const ALLOWED_POSITIONS = [
+  "Manager",
+  "Assistant Manager",
+  "Supervisor",
+  "Staff",
+];
+
 const sortUsersByRolePriority = (usersList) => {
   const rolePriority = {
     admin: 0,
@@ -205,7 +212,14 @@ export const updateUserProfileByAdmin = async (req, res) => {
     }
     if (displayName !== undefined) updateData.displayName = displayName;
     if (email !== undefined) updateData.email = email;
-    if (position !== undefined) updateData.position = position;
+    if (position !== undefined) {
+      if (position !== null && position !== "" && !ALLOWED_POSITIONS.includes(position)) {
+        return res.status(400).json({
+          message: `Position phải là một trong: ${ALLOWED_POSITIONS.join(", ")}`,
+        });
+      }
+      updateData.position = position;
+    }
     if (phone !== undefined) updateData.phone = phone;
     if (role !== undefined) updateData.role = role;
     if (newPassword !== undefined && newPassword !== "") {
@@ -214,6 +228,7 @@ export const updateUserProfileByAdmin = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(userId, updateData, {
       returnDocument: "after",
+      runValidators: true,
     }).select("-hashedPassword");
 
     if (!user) {

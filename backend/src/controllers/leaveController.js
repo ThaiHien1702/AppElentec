@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Leave from "../models/Leave.js";
 import User from "../models/User.js";
 
@@ -5,7 +6,7 @@ import User from "../models/User.js";
 export const createLeaveRequest = async (req, res) => {
   try {
     const { leaveType, startDate, endDate, reason, notes } = req.body;
-    const userId = req.user.id; // Từ middleware auth
+    const userId = req.userId; // Từ verifyToken middleware
 
     // Tính số ngày nghỉ
     const start = new Date(startDate);
@@ -41,7 +42,7 @@ export const createLeaveRequest = async (req, res) => {
 // Lấy danh sách yêu cầu nghỉ phép của user hiện tại
 export const getMyLeaveRequests = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { status, page = 1, limit = 10 } = req.query;
 
     const query = { user: userId };
@@ -114,8 +115,8 @@ export const getAllLeaveRequests = async (req, res) => {
 export const getLeaveRequestById = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
-    const userRole = req.user.role;
+    const userId = req.userId;
+    const userRole = req.userRole;
 
     const leaveRequest = await Leave.findById(id)
       .populate("user", "displayName department position")
@@ -144,7 +145,7 @@ export const approveLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { notes } = req.body;
-    const approverId = req.user.id;
+    const approverId = req.userId;
 
     const leaveRequest = await Leave.findById(id);
     if (!leaveRequest) {
@@ -181,7 +182,7 @@ export const rejectLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { rejectionReason, notes } = req.body;
-    const approverId = req.user.id;
+    const approverId = req.userId;
 
     const leaveRequest = await Leave.findById(id);
     if (!leaveRequest) {
@@ -218,7 +219,7 @@ export const rejectLeaveRequest = async (req, res) => {
 export const cancelLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.userId;
 
     const leaveRequest = await Leave.findById(id);
     if (!leaveRequest) {
@@ -257,7 +258,7 @@ export const updateLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { leaveType, startDate, endDate, reason, notes } = req.body;
-    const userId = req.user.id;
+    const userId = req.userId;
 
     const leaveRequest = await Leave.findById(id);
     if (!leaveRequest) {
@@ -312,13 +313,13 @@ export const updateLeaveRequest = async (req, res) => {
 // Thống kê nghỉ phép theo user
 export const getLeaveStats = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const currentYear = new Date().getFullYear();
 
     const stats = await Leave.aggregate([
       {
         $match: {
-          user: mongoose.Types.ObjectId(userId),
+          user: new mongoose.Types.ObjectId(userId),
           status: "APPROVED",
           startDate: {
             $gte: new Date(`${currentYear}-01-01`),

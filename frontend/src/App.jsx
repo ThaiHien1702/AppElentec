@@ -24,6 +24,8 @@ import LuggageManagement from "./pages/Luggage/LuggageManagement";
 import LuggageRegisterPage from "./pages/Luggage/LuggageRegisterPage";
 import LeaveManagement from "./pages/LeaveManagement/LeaveManagement";
 import LeaveRegisterPage from "./pages/LeaveManagement/LeaveRegisterPage";
+import OvertimeManagement from "./pages/OvertimeManagement/OvertimeManagement";
+import OvertimeRegisterPage from "./pages/OvertimeManagement/OvertimeRegisterPage";
 
 const App = () => {
   return (
@@ -92,6 +94,8 @@ const App = () => {
             />
             <Route path="leave" element={<LeaveManagement />} />
             <Route path="leave/register" element={<LeaveRegisterPage />} />
+            <Route path="overtime" element={<OvertimeManagement />} />
+            <Route path="overtime/register" element={<OvertimeRegisterPage />} />
             <Route
               path="luggage"
               element={

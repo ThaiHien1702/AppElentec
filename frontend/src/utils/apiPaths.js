@@ -127,12 +127,29 @@ export const API_PATHS = {
   // Leave management endpoints
   LEAVES: `${BASE_URL}/leaves`,
   LEAVES_MY: `${BASE_URL}/leaves/my`,
+  LEAVES_ALL: `${BASE_URL}/leaves/all`,
   LEAVES_STATS: `${BASE_URL}/leaves/stats`,
   LEAVES_BY_ID: (id) => `${BASE_URL}/leaves/${id}`,
   LEAVES_UPDATE: (id) => `${BASE_URL}/leaves/${id}`,
   LEAVES_CANCEL: (id) => `${BASE_URL}/leaves/${id}/cancel`,
   LEAVES_APPROVE: (id) => `${BASE_URL}/leaves/${id}/approve`,
   LEAVES_REJECT: (id) => `${BASE_URL}/leaves/${id}/reject`,
+
+  // Overtime management endpoints
+  OVERTIME: `${BASE_URL}/overtime`,
+  OVERTIME_MY: `${BASE_URL}/overtime/my`,
+  OVERTIME_ALL: `${BASE_URL}/overtime/all`,
+  OVERTIME_STATS: `${BASE_URL}/overtime/stats`,
+  OVERTIME_BY_ID: (id) => `${BASE_URL}/overtime/${id}`,
+  OVERTIME_UPDATE: (id) => `${BASE_URL}/overtime/${id}`,
+  OVERTIME_CANCEL: (id) => `${BASE_URL}/overtime/${id}/cancel`,
+  OVERTIME_APPROVE: (id) => `${BASE_URL}/overtime/${id}/approve`,
+  OVERTIME_REJECT: (id) => `${BASE_URL}/overtime/${id}/reject`,
+  OVERTIME_RESULT: (id) => `${BASE_URL}/overtime/${id}/result`,
+
+  // Dashboard stats
+  DASHBOARD_STATS: `${BASE_URL}/dashboard/stats`,
+  DASHBOARD_DETAIL: (type) => `${BASE_URL}/dashboard/detail/${type}`,
 };
 
 export default API_PATHS;

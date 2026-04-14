@@ -621,13 +621,15 @@ export const searchComputers = async (req, res) => {
         .json({ message: "Vui lòng nhập từ khóa tìm kiếm" });
     }
 
+    const escapedQ = escapeRegex(q);
+
     const computers = await ComputerInfo.find({
       $or: [
-        { employeeNo: { $regex: q, $options: "i" } },
-        { computerName: { $regex: q, $options: "i" } },
-        { email: { $regex: q, $options: "i" } },
-        { ipAddress: { $regex: q, $options: "i" } },
-        { macAddress: { $regex: q, $options: "i" } },
+        { employeeNo: { $regex: escapedQ, $options: "i" } },
+        { computerName: { $regex: escapedQ, $options: "i" } },
+        { email: { $regex: escapedQ, $options: "i" } },
+        { ipAddress: { $regex: escapedQ, $options: "i" } },
+        { macAddress: { $regex: escapedQ, $options: "i" } },
       ],
     });
 

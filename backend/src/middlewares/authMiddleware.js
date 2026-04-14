@@ -23,11 +23,13 @@ export const verifyToken = async (req, res, next) => {
 
     // Fetch position from database
     const user = await User.findById(decoded.userId);
-    if (user) {
-      req.userPosition = user.position;
-      req.userDepartment = user.department;
-      req.positionLevel = POSITION_LEVELS[user.position] || 0;
+    if (!user) {
+      return res.status(401).json({ message: "Người dùng không còn tồn tại" });
     }
+
+    req.userPosition = user.position;
+    req.userDepartment = user.department;
+    req.positionLevel = POSITION_LEVELS[user.position] || 0;
 
     next();
   } catch (error) {
@@ -72,6 +74,10 @@ export const isManager = (req, res, next) => {
 
 // Middleware kiểm tra position Assistant Manager trở lên
 export const isAssistantManagerOrAbove = (req, res, next) => {
+  if (req.userRole === "admin") {
+    return next();
+  }
+
   if (req.positionLevel < POSITION_LEVELS["Assistant Manager"]) {
     return res.status(403).json({
       message: "Chỉ Assistant Manager trở lên mới có quyền truy cập",
@@ -82,6 +88,10 @@ export const isAssistantManagerOrAbove = (req, res, next) => {
 
 // Middleware kiểm tra position Supervisor trở lên
 export const isSupervisor = (req, res, next) => {
+  if (req.userRole === "admin") {
+    return next();
+  }
+
   if (req.positionLevel < POSITION_LEVELS.Supervisor) {
     return res.status(403).json({
       message: "Chỉ Supervisor trở lên mới có quyền truy cập",

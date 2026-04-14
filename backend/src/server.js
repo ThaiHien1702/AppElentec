@@ -15,6 +15,8 @@ import reportRoutes from "./routes/reportRoutes.js";
 import accessPolicyRoutes from "./routes/accessPolicyRoutes.js";
 import luggageRoutes from "./routes/luggageRoutes.js";
 import leaveRoutes from "./routes/leaveRoutes.js";
+import overtimeRoutes from "./routes/overtimeRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -69,6 +71,8 @@ app.use("/api/luggage", luggageRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/access-control", accessPolicyRoutes);
 app.use("/api/leaves", leaveRoutes);
+app.use("/api/overtime", overtimeRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // primary route
 
