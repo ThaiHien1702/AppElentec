@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from "./apiBaseUrl";
 
-const BASE_URL = getApiBaseUrl();
+// BASE_URL để trống vì axiosInstance đã được cấu hình baseURL từ getApiBaseUrl()
+const BASE_URL = "";
 
 export const API_PATHS = {
   // Các điểm cuối xác thực
