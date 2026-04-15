@@ -172,90 +172,44 @@ export default function OvertimeManagement() {
   }, {});
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "24px",
-        }}
-      >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1
-            style={{
-              fontSize: "24px",
-              fontWeight: "700",
-              color: "#1a1a2e",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              margin: 0,
-            }}
-          >
-            <Clock style={{ width: "28px", height: "28px", color: "#2563EB" }} />
-            Đăng ký giờ làm thêm (OT)
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Clock className="w-6 h-6 text-blue-600" />
+            Đăng ký làm thêm (OT)
           </h1>
-          <p style={{ color: "#6B7280", marginTop: "4px", fontSize: "14px" }}>
+          <p className="text-sm text-gray-500 mt-1">
             Quản lý và theo dõi đăng ký giờ làm thêm
           </p>
         </div>
         <button
           onClick={() => navigate("/overtime/register")}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "10px 20px",
-            backgroundColor: "#2563EB",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            fontSize: "14px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.2s",
-            boxShadow: "0 2px 8px rgba(37,99,235,0.3)",
-          }}
-          onMouseOver={(e) => (e.target.style.backgroundColor = "#1D4ED8")}
-          onMouseOut={(e) => (e.target.style.backgroundColor = "#2563EB")}
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-sm transition-colors font-medium"
         >
-          <Plus style={{ width: "18px", height: "18px" }} />
+          <Plus className="w-4 h-4" />
           Đăng ký OT
         </button>
       </div>
 
       {/* Summary cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: "12px",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
           const count = requests.filter((r) => r.status === key).length;
           const Icon = cfg.icon;
           return (
             <div
               key={key}
-              style={{
-                backgroundColor: cfg.bg,
-                borderRadius: "12px",
-                padding: "16px",
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
+              className="rounded-xl p-4 flex items-center gap-3 transition-shadow shadow-xs border border-gray-100"
+              style={{ backgroundColor: cfg.bg, color: cfg.color }}
             >
-              <Icon style={{ width: "20px", height: "20px", color: cfg.color }} />
+              <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-white/30">
+                <Icon className="h-5 w-5" />
+              </div>
               <div>
-                <div style={{ fontSize: "20px", fontWeight: "700", color: cfg.color }}>
-                  {count}
-                </div>
-                <div style={{ fontSize: "12px", color: cfg.color, opacity: 0.8 }}>
+                <div className="text-xl font-bold">{count}</div>
+                <div className="text-[10px] md:text-xs font-medium opacity-80 uppercase tracking-wider">
                   {cfg.label}
                 </div>
               </div>
@@ -265,29 +219,18 @@ export default function OvertimeManagement() {
       </div>
 
       {/* Filter */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "16px",
-        }}
-      >
-        <Filter style={{ width: "16px", height: "16px", color: "#6B7280" }} />
+      <div className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Filter className="w-4 h-4" />
+          <span className="text-xs font-medium uppercase tracking-wider">Lọc nhanh</span>
+        </div>
         <select
           value={filterStatus}
           onChange={(e) => {
             setFilterStatus(e.target.value);
             setCurrentPage(1);
           }}
-          style={{
-            padding: "8px 16px",
-            borderRadius: "8px",
-            border: "1px solid #D1D5DB",
-            fontSize: "14px",
-            backgroundColor: "white",
-            cursor: "pointer",
-          }}
+          className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer transition-all"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="PENDING">Chờ duyệt</option>
@@ -296,315 +239,138 @@ export default function OvertimeManagement() {
           <option value="CANCELLED">Đã hủy</option>
           <option value="COMPLETED">Hoàn thành</option>
         </select>
-        <span style={{ fontSize: "13px", color: "#9CA3AF" }}>
-          Tổng: {totalItems} yêu cầu
-        </span>
+        <div className="ml-auto text-xs text-gray-400 font-medium">
+          Tổng số: <span className="text-gray-900">{totalItems}</span> bản ghi
+        </div>
       </div>
 
       {/* Table - Excel style */}
-      <div
-        style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
-          overflow: "hidden",
-        }}
-      >
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "#9CA3AF" }}>
-            <Clock
-              style={{
-                width: "32px",
-                height: "32px",
-                margin: "0 auto 12px",
-                animation: "spin 1s linear infinite",
-              }}
-            />
-            Đang tải...
+          <div className="py-20 text-center text-gray-400">
+            <Clock className="w-8 h-8 mx-auto mb-3 animate-spin" />
+            Đang tải dữ liệu...
           </div>
         ) : requests.length === 0 ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "#9CA3AF" }}>
-            <AlertCircle
-              style={{ width: "40px", height: "40px", margin: "0 auto 12px" }}
-            />
+          <div className="py-20 text-center text-gray-400">
+            <AlertCircle className="w-10 h-10 mx-auto mb-3" />
             <p>Chưa có yêu cầu OT nào</p>
           </div>
         ) : (
           <>
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: "13px",
-                }}
-              >
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-xs">
                 <thead>
-                  <tr>
-                    <th style={thStyle}>No.</th>
-                    <th style={thStyle}>ID</th>
-                    <th style={thStyle}>Name</th>
-                    <th style={thStyle}>Dept</th>
-                    <th style={thStyle}>Position</th>
-                    <th style={thStyle}>Check in</th>
-                    <th
-                      colSpan={2}
-                      style={{
-                        ...thStyle,
-                        backgroundColor: "#4A7C59",
-                        textAlign: "center",
-                      }}
-                    >
-                      OT PLAN
-                    </th>
-                    <th
-                      colSpan={2}
-                      style={{
-                        ...thStyle,
-                        backgroundColor: "#8B6914",
-                        textAlign: "center",
-                      }}
-                    >
-                      OT RESULT
-                    </th>
-                    <th style={thStyle}>Reason for OT</th>
-                    <th style={thStyle}>Trạng thái</th>
-                    <th style={thStyle}>Thao tác</th>
+                  <tr className="bg-emerald-700 text-white uppercase tracking-wider font-bold">
+                    <th className="p-3 border-r border-emerald-600/30">No.</th>
+                    <th className="p-3 border-r border-emerald-600/30">ID</th>
+                    <th className="p-3 border-r border-emerald-600/30">Name</th>
+                    <th className="p-3 border-r border-emerald-600/30">Dept</th>
+                    <th className="p-3 border-r border-emerald-600/30">Position</th>
+                    <th className="p-3 border-r border-emerald-600/30">Check in</th>
+                    <th colSpan={2} className="p-3 border-r border-emerald-600/30 text-center bg-emerald-800/50">OT PLAN</th>
+                    <th colSpan={2} className="p-3 border-r border-emerald-600/30 text-center bg-amber-800/50">OT RESULT</th>
+                    <th className="p-3 border-r border-emerald-600/30">Reason for OT</th>
+                    <th className="p-3 border-r border-emerald-600/30">Trạng thái</th>
+                    <th className="p-3">Thao tác</th>
                   </tr>
-                  <tr>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={{ ...thSubStyle, backgroundColor: "#EBF5EE" }}>
-                      OT Start (Hr)
-                    </th>
-                    <th style={{ ...thSubStyle, backgroundColor: "#EBF5EE" }}>
-                      OT Finish (Hr)
-                    </th>
-                    <th style={{ ...thSubStyle, backgroundColor: "#FFF8E1" }}>
-                      OT Start (Hr)
-                    </th>
-                    <th style={{ ...thSubStyle, backgroundColor: "#FFF8E1" }}>
-                      OT Finish (Hr)
-                    </th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
-                    <th style={thSubStyle}></th>
+                  <tr className="bg-gray-50 text-gray-600 font-semibold border-b-2 border-gray-200">
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">OT Start</th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">OT Finish</th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">OT Start</th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">OT Finish</th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2 border-r border-gray-200"></th>
+                    <th className="p-2"></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100">
                   {requests.map((req, idx) => {
                     const statusCfg = STATUS_CONFIG[req.status] || STATUS_CONFIG.PENDING;
                     const StatusIcon = statusCfg.icon;
-                    const isOwner =
-                      req.user?._id === user?.id ||
-                      req.user?._id === user?._id;
+                    const isOwner = req.user?._id === user?.id || req.user?._id === user?._id;
                     const isEditingThis = editingResult === req._id;
 
                     return (
-                      <tr
-                        key={req._id}
-                        style={{
-                          borderBottom: "1px solid #E5E7EB",
-                          transition: "background 0.15s",
-                        }}
-                        onMouseOver={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#F9FAFB")
-                        }
-                        onMouseOut={(e) =>
-                          (e.currentTarget.style.backgroundColor = "transparent")
-                        }
-                      >
-                        <td style={tdStyle}>{(currentPage - 1) * 20 + idx + 1}</td>
-                        <td style={{ ...tdStyle, fontWeight: "600", color: "#1E40AF" }}>
-                          {req.user?.idCompanny || "—"}
-                        </td>
-                        <td style={{ ...tdStyle, fontWeight: "500" }}>
-                          {req.user?.displayName || "—"}
-                        </td>
-                        <td style={tdStyle}>{req.user?.department || "—"}</td>
-                        <td style={tdStyle}>{req.user?.position || "—"}</td>
-                        <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
-                          {formatDate(req.checkInDate)}
-                        </td>
+                      <tr key={req._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-3 text-gray-500">{(currentPage - 1) * 20 + idx + 1}</td>
+                        <td className="p-3 font-semibold text-blue-700">{req.user?.idCompanny || "—"}</td>
+                        <td className="p-3 font-medium text-gray-900">{req.user?.displayName || "—"}</td>
+                        <td className="p-3 text-gray-600">{req.user?.department || "—"}</td>
+                        <td className="p-3 text-gray-600">{req.user?.position || "—"}</td>
+                        <td className="p-3 whitespace-nowrap text-gray-600">{formatDate(req.checkInDate)}</td>
 
                         {/* OT Plan */}
-                        <td
-                          style={{
-                            ...tdStyle,
-                            backgroundColor: "#F0FFF4",
-                            textAlign: "center",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {req.otPlanStart}
-                        </td>
-                        <td
-                          style={{
-                            ...tdStyle,
-                            backgroundColor: "#F0FFF4",
-                            textAlign: "center",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {req.otPlanFinish}
-                        </td>
+                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">{req.otPlanStart}</td>
+                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">{req.otPlanFinish}</td>
 
                         {/* OT Result */}
-                        <td
-                          style={{
-                            ...tdStyle,
-                            backgroundColor: "#FFFBEB",
-                            textAlign: "center",
-                          }}
-                        >
+                        <td className="p-3 text-center bg-amber-50/30">
                           {isEditingThis ? (
                             <input
                               type="time"
                               value={resultForm.otResultStart}
-                              onChange={(e) =>
-                                setResultForm((p) => ({
-                                  ...p,
-                                  otResultStart: e.target.value,
-                                }))
-                              }
-                              style={timeInputStyle}
+                              onChange={(e) => setResultForm((p) => ({ ...p, otResultStart: e.target.value }))}
+                              className="w-[90px] p-1 border border-amber-300 rounded bg-white text-center"
                             />
                           ) : (
-                            <span style={{ fontWeight: req.otResultStart ? "600" : "400", color: req.otResultStart ? "#92400E" : "#D1D5DB" }}>
+                            <span className={req.otResultStart ? "font-bold text-amber-800" : "text-gray-300"}>
                               {req.otResultStart || "—"}
                             </span>
                           )}
                         </td>
-                        <td
-                          style={{
-                            ...tdStyle,
-                            backgroundColor: "#FFFBEB",
-                            textAlign: "center",
-                          }}
-                        >
+                        <td className="p-3 text-center bg-amber-50/30">
                           {isEditingThis ? (
                             <input
                               type="time"
                               value={resultForm.otResultFinish}
-                              onChange={(e) =>
-                                setResultForm((p) => ({
-                                  ...p,
-                                  otResultFinish: e.target.value,
-                                }))
-                              }
-                              style={timeInputStyle}
+                              onChange={(e) => setResultForm((p) => ({ ...p, otResultFinish: e.target.value }))}
+                              className="w-[90px] p-1 border border-amber-300 rounded bg-white text-center"
                             />
                           ) : (
-                            <span style={{ fontWeight: req.otResultFinish ? "600" : "400", color: req.otResultFinish ? "#92400E" : "#D1D5DB" }}>
+                            <span className={req.otResultFinish ? "font-bold text-amber-800" : "text-gray-300"}>
                               {req.otResultFinish || "—"}
                             </span>
                           )}
                         </td>
 
-                        {/* Reason */}
-                        <td
-                          style={{
-                            ...tdStyle,
-                            maxWidth: "220px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                          title={req.reason}
-                        >
-                          {req.reason}
-                        </td>
+                        <td className="p-3 max-w-[200px] truncate text-gray-600" title={req.reason}>{req.reason}</td>
 
-                        {/* Status */}
-                        <td style={tdStyle}>
+                        <td className="p-3">
                           <span
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px",
-                              padding: "4px 10px",
-                              borderRadius: "20px",
-                              fontSize: "11px",
-                              fontWeight: "600",
-                              backgroundColor: statusCfg.bg,
-                              color: statusCfg.color,
-                              whiteSpace: "nowrap",
-                            }}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"
+                            style={{ backgroundColor: statusCfg.bg, color: statusCfg.color }}
                           >
-                            <StatusIcon style={{ width: "12px", height: "12px" }} />
+                            <StatusIcon className="w-3 h-3" />
                             {statusCfg.label}
                           </span>
                         </td>
 
-                        {/* Actions */}
-                        <td style={tdStyle}>
-                          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                            {/* Admin: Approve/Reject PENDING */}
+                        <td className="p-3">
+                          <div className="flex items-center gap-1">
                             {canApprove && req.status === "PENDING" && (
                               <>
-                                <ActionBtn
-                                  icon={Check}
-                                  color="#059669"
-                                  title="Phê duyệt"
-                                  onClick={() => handleApprove(req._id)}
-                                />
-                                <ActionBtn
-                                  icon={X}
-                                  color="#DC2626"
-                                  title="Từ chối"
-                                  onClick={() => handleReject(req._id)}
-                                />
+                                <button onClick={() => handleApprove(req._id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Phê duyệt"><Check className="w-4 h-4" /></button>
+                                <button onClick={() => handleReject(req._id)} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors" title="Từ chối"><X className="w-4 h-4" /></button>
                               </>
                             )}
-
-                            {/* Admin: Edit OT Result for APPROVED */}
-                            {canApprove &&
-                              (req.status === "APPROVED" || req.status === "COMPLETED") &&
-                              !isEditingThis && (
-                                <ActionBtn
-                                  icon={Edit3}
-                                  color="#D97706"
-                                  title="Nhập kết quả OT"
-                                  onClick={() => startEditResult(req)}
-                                />
-                              )}
-
-                            {/* Save result */}
+                            {canApprove && (req.status === "APPROVED" || req.status === "COMPLETED") && !isEditingThis && (
+                              <button onClick={() => startEditResult(req)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Sửa kết quả"><Edit3 className="w-4 h-4" /></button>
+                            )}
                             {isEditingThis && (
                               <>
-                                <ActionBtn
-                                  icon={Save}
-                                  color="#059669"
-                                  title="Lưu kết quả"
-                                  onClick={() => handleSaveResult(req._id)}
-                                />
-                                <ActionBtn
-                                  icon={X}
-                                  color="#6B7280"
-                                  title="Hủy"
-                                  onClick={() => {
-                                    setEditingResult(null);
-                                    setResultForm({
-                                      otResultStart: "",
-                                      otResultFinish: "",
-                                    });
-                                  }}
-                                />
+                                <button onClick={() => handleSaveResult(req._id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Lưu"><Save className="w-4 h-4" /></button>
+                                <button onClick={() => setEditingResult(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors" title="Hủy"><X className="w-4 h-4" /></button>
                               </>
                             )}
-
-                            {/* Owner: Cancel PENDING */}
                             {isOwner && req.status === "PENDING" && (
-                              <ActionBtn
-                                icon={X}
-                                color="#6B7280"
-                                title="Hủy yêu cầu"
-                                onClick={() => handleCancel(req._id)}
-                              />
+                              <button onClick={() => handleCancel(req._id)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors" title="Hủy yêu cầu"><X className="w-4 h-4" /></button>
                             )}
                           </div>
                         </td>
@@ -617,34 +383,24 @@ export default function OvertimeManagement() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px 20px",
-                  borderTop: "1px solid #E5E7EB",
-                }}
-              >
-                <span style={{ fontSize: "13px", color: "#6B7280" }}>
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t border-gray-100 bg-gray-50/30">
+                <span className="text-xs text-gray-500 font-medium">
                   Trang {currentPage} / {totalPages}
                 </span>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    style={paginationBtnStyle}
+                    className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   >
-                    <ChevronLeft style={{ width: "16px", height: "16px" }} />
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, currentPage + 1))
-                    }
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    style={paginationBtnStyle}
+                    className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   >
-                    <ChevronRight style={{ width: "16px", height: "16px" }} />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -652,13 +408,6 @@ export default function OvertimeManagement() {
           </>
         )}
       </div>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

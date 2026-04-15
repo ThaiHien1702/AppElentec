@@ -159,18 +159,18 @@ export default function LeaveManagement() {
     request.user._id === user.id && request.status === "PENDING";
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Calendar className="w-6 h-6" />
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Calendar className="w-6 h-6 text-blue-600" />
           Quản lý nghỉ phép
         </h1>
         <button
           onClick={() => navigate("/leave/register")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Tạo yêu cầu nghỉ phép
+          Tạo yêu cầu
         </button>
       </div>
 
@@ -178,21 +178,23 @@ export default function LeaveManagement() {
       {stats && <LeaveStats stats={stats} />}
 
       {/* Bộ lọc */}
-      <div className="mb-4 flex gap-4">
-        <select
-          value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="border border-gray-300 rounded-lg px-3 py-2"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="PENDING">Chờ duyệt</option>
-          <option value="APPROVED">Đã duyệt</option>
-          <option value="REJECTED">Từ chối</option>
-          <option value="CANCELLED">Đã hủy</option>
-        </select>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 w-full sm:w-64 shadow-sm">
+          <select
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full bg-transparent border-none text-sm focus:ring-0 outline-none cursor-pointer"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING">Chờ duyệt</option>
+            <option value="APPROVED">Đã duyệt</option>
+            <option value="REJECTED">Từ chối</option>
+            <option value="CANCELLED">Đã hủy</option>
+          </select>
+        </div>
       </div>
 
       {/* Danh sách yêu cầu */}

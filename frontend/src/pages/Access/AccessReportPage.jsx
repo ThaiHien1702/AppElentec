@@ -115,52 +115,46 @@ const AccessReportPage = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-end gap-2">
-            <div>
-              <label className="mb-1 block text-xs text-slate-500">
+          <div className="flex flex-wrap items-end gap-3 w-full sm:w-auto mt-4 md:mt-0">
+            <div className="flex-1 min-w-[120px]">
+              <label className="mb-1 block text-xs text-slate-500 font-medium tracking-wide">
                 Từ ngày
               </label>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(event) => setFromDate(event.target.value)}
-                className="rounded-md border border-slate-300 px-2.5 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs text-slate-500">
+            <div className="flex-1 min-w-[120px]">
+              <label className="mb-1 block text-xs text-slate-500 font-medium tracking-wide">
                 Đến ngày
               </label>
               <input
                 type="date"
                 value={toDate}
                 onChange={(event) => setToDate(event.target.value)}
-                className="rounded-md border border-slate-300 px-2.5 py-1.5 text-sm"
+                className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
-            <button
-              type="button"
-              onClick={fetchReports}
-              className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              {loading ? "Đang tải..." : "Làm mới"}
-            </button>
-            <button
-              type="button"
-              onClick={() => exportReport("excel")}
-              disabled={exportingType === "excel"}
-              className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              {exportingType === "excel" ? "Đang xuất..." : "Xuất Excel"}
-            </button>
-            <button
-              type="button"
-              onClick={() => exportReport("csv")}
-              disabled={exportingType === "csv"}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed"
-            >
-              {exportingType === "csv" ? "Đang xuất..." : "Xuất CSV"}
-            </button>
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={fetchReports}
+                className="flex-1 sm:flex-none rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 shadow-sm transition-colors"
+              >
+                {loading ? "..." : "Làm mới"}
+              </button>
+              <button
+                type="button"
+                onClick={() => exportReport("excel")}
+                disabled={exportingType === "excel"}
+                className="flex-1 sm:flex-none rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:bg-slate-300 shadow-sm transition-colors"
+              >
+                Excel
+              </button>
+            </div>
           </div>
         </div>
       </section>

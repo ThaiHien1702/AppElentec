@@ -19,7 +19,6 @@ import {
   ChevronDown,
   RefreshCw,
 } from "lucide-react";
-import AccessReportPage from "../Access/AccessReportPage";
 
 // Status badge style helper
 const statusStyle = (status) => {
@@ -313,28 +312,28 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header & Filter */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 md:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-blue-50 p-2">
+            <div className="rounded-lg bg-blue-50 p-2 shrink-0">
               <Building2 className="h-6 w-6 text-blue-600" />
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-slate-800">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-xl font-semibold text-slate-800 truncate">
                 Thống kê bộ phận — {stats.department || "N/A"}
               </h1>
-              <p className="mt-0.5 text-sm text-slate-500">
-                Năm {stats.year} • Nhấn vào thẻ để xem danh sách chi tiết
+              <p className="mt-0.5 text-xs md:text-sm text-slate-500">
+                Năm {stats.year} • Nhấn vào thẻ để xem chi tiết
               </p>
             </div>
           </div>
           {canFilter && stats.departments?.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-center">
               <Filter className="h-4 w-4 text-slate-400" />
               <select
                 value={selectedDept}
                 onChange={(e) => { setSelectedDept(e.target.value); setActiveType(null); }}
-                className="rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full sm:w-auto rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="all">Tất cả bộ phận</option>
                 {stats.departments.map((dept) => (
@@ -367,11 +366,7 @@ const Dashboard = () => {
           cardConfig={activeCardConfig}
           onClose={() => setActiveType(null)}
         />
-      ) : (
-        <div className="border-t border-slate-200 pt-6">
-          <AccessReportPage />
-        </div>
-      )}
+      ) : null}
     </div>
   );
 };
