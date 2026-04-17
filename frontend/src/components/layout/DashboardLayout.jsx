@@ -141,7 +141,7 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký nghỉ phép",
           path: "/leave/register",
           icon: Plus,
-          show: true,
+          show: false,
         },
         {
           name: "Đăng ký giờ làm thêm",
@@ -153,7 +153,7 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký OT mới",
           path: "/overtime/register",
           icon: Plus,
-          show: true,
+          show: false,
         },
       ],
     },

@@ -350,6 +350,7 @@ const ComputerManagement = () => {
   const filteredComputers = computers.filter((computer) =>
     [
       computer.employeeNo,
+      computer.userName,
       computer.computerName,
       computer.email,
       computer.ipAddress,
@@ -485,7 +486,10 @@ const ComputerManagement = () => {
                     Asset Code
                   </th>
                   <th className="px-5 py-4 text-left text-sm font-extrabold uppercase tracking-wider text-slate-800">
-                    Your Info PC
+                    ID
+                  </th>
+                  <th className="px-5 py-4 text-left text-sm font-extrabold uppercase tracking-wider text-slate-800">
+                    User Name
                   </th>
                   <th className="px-5 py-4 text-left text-sm font-extrabold uppercase tracking-wider text-slate-800">
                     Computer Name
@@ -494,7 +498,7 @@ const ComputerManagement = () => {
                     IP Address
                   </th>
                   <th className="px-5 py-4 text-left text-sm font-extrabold uppercase tracking-wider text-slate-800">
-                    DeptDept
+                    Department
                   </th>
                   <th className="px-5 py-4 text-left text-sm font-extrabold uppercase tracking-wider text-slate-800">
                     Status
@@ -514,8 +518,11 @@ const ComputerManagement = () => {
                     <td className="px-5 py-3.5 text-sm text-gray-900">
                       {computer.assetCode || "-"}
                     </td>
-                    <td className="px-5 py-3.5 text-sm text-gray-600">
-                      {computer.userNamePc || "-"}
+                    <td className="px-5 py-3.5 text-sm text-gray-900">
+                      {computer.employeeNo || "-"}
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-900">
+                      {computer.userName || "-"}
                     </td>
                     <td className="px-5 py-3.5 text-sm font-medium text-gray-900">
                       {computer.computerName}
