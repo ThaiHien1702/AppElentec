@@ -418,6 +418,14 @@ Nội dung: Thông tin sự cố, mô tả, xử lý ban đầu, quyết định
 /access/approvals        # Duyệt yêu cầu (moderator/admin)
 /access/gate             # Gate Console (moderator/admin)
 /access/reports          # Báo cáo (moderator/admin)
+/leave                   # Quản lý nghỉ phép (user/moderator/admin)
+/leave/register          # Đăng ký nghỉ phép (user)
+/leave/reports           # Báo cáo nghỉ phép (moderator/admin)
+/overtime                # Quản lý làm thêm (user/moderator/admin)
+/overtime/register       # Đăng ký làm thêm (user)
+/overtime/reports        # Báo cáo giờ làm thêm (moderator/admin)
+/luggage                 # Quản lý đồ đạc (moderator/admin)
+/luggage/register        # Ghi nhận vật dụng (moderator/admin)
 ```
 
 ---

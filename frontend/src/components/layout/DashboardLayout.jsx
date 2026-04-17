@@ -144,6 +144,12 @@ const DashboardLayout = ({ children }) => {
           show: false,
         },
         {
+          name: "Báo cáo nghỉ phép",
+          path: "/leave/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
+        },
+        {
           name: "Đăng ký giờ làm thêm",
           path: "/overtime",
           icon: Clock,
@@ -154,6 +160,12 @@ const DashboardLayout = ({ children }) => {
           path: "/overtime/register",
           icon: Plus,
           show: false,
+        },
+        {
+          name: "Báo cáo giờ làm thêm",
+          path: "/overtime/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
         },
       ],
     },
@@ -208,7 +220,10 @@ const DashboardLayout = ({ children }) => {
             </div>
           </div>
           {/* Nút đóng sidebar (chỉ hiện trên Mobile) */}
-          <button onClick={closeSidebar} className="md:hidden text-gray-500 hover:text-gray-700">
+          <button
+            onClick={closeSidebar}
+            className="md:hidden text-gray-500 hover:text-gray-700"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>

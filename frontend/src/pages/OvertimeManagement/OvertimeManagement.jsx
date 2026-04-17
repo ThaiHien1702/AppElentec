@@ -14,10 +14,20 @@ import {
   Filter,
   Edit3,
   Save,
+  Download,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { overtimeService } from "../../utils/overtimeService";
 import { handleApiError, handleApiSuccess } from "../../utils/apiHandler";
+import {
+  exportOvertimeData,
+  downloadOvertimeTemplate,
+  importOvertimeData,
+  formatImportResults,
+} from "../../utils/excelUtils";
+import toast from "react-hot-toast";
 
 const STATUS_CONFIG = {
   PENDING: {
@@ -61,12 +71,13 @@ export default function OvertimeManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [showDetail, setShowDetail] = useState(null);
   const [editingResult, setEditingResult] = useState(null);
   const [resultForm, setResultForm] = useState({
     otResultStart: "",
     otResultFinish: "",
   });
+  const [importLoading, setImportLoading] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   const canApprove = user?.role === "admin" || user?.role === "moderator";
 
@@ -159,17 +170,43 @@ export default function OvertimeManagement() {
     });
   };
 
+  const handleExportData = () => {
+    try {
+      exportOvertimeData(filterStatus);
+    } catch (error) {
+      handleApiError(error, "Lỗi khi xuất dữ liệu Excel");
+    }
+  };
+
+  const handleImportFile = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    try {
+      const result = await importOvertimeData(file);
+      const formatted = formatImportResults(result);
+      toast.success(
+        `Import thành công ${formatted.success}/${formatted.total} bản ghi`,
+      );
+      fetchRequests();
+    } catch (error) {
+      handleApiError(error, "Lỗi khi import dữ liệu Excel");
+    } finally {
+      setImportLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
-
-  // Group requests by checkInDate for the Excel-like view
-  const groupedByDate = requests.reduce((acc, req) => {
-    const dateKey = new Date(req.checkInDate).toISOString().split("T")[0];
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(req);
-    return acc;
-  }, {});
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
@@ -184,13 +221,52 @@ export default function OvertimeManagement() {
             Quản lý và theo dõi đăng ký giờ làm thêm
           </p>
         </div>
-        <button
-          onClick={() => navigate("/overtime/register")}
-          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-sm transition-colors font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          Đăng ký OT
-        </button>
+        <div className="inline-flex h-10 items-center gap-2 self-start">
+          <button
+            onClick={() => navigate("/overtime/register")}
+            className="h-10 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Đăng ký OT
+          </button>
+
+          {canApprove && (
+            <>
+              <button
+                onClick={handleImportClick}
+                disabled={importLoading}
+                className="h-10 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                title="Import từ Excel"
+              >
+                <Upload className="w-4 h-4" />
+                {importLoading ? "Đang import..." : "Import Excel"}
+              </button>
+              <button
+                onClick={handleExportData}
+                className="h-10 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 flex items-center gap-2"
+                title="Xuất danh sách sang Excel"
+              >
+                <Download className="w-4 h-4" />
+                Export Excel
+              </button>
+              <button
+                onClick={downloadOvertimeTemplate}
+                className="h-10 px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 flex items-center gap-2"
+                title="Tải mẫu Excel"
+              >
+                <Download className="w-4 h-4" />
+                Tải mẫu
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleImportFile}
+                className="hidden"
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -222,7 +298,9 @@ export default function OvertimeManagement() {
       <div className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex items-center gap-2 text-gray-500">
           <Filter className="w-4 h-4" />
-          <span className="text-xs font-medium uppercase tracking-wider">Lọc nhanh</span>
+          <span className="text-xs font-medium uppercase tracking-wider">
+            Lọc nhanh
+          </span>
         </div>
         <select
           value={filterStatus}
@@ -266,12 +344,30 @@ export default function OvertimeManagement() {
                     <th className="p-3 border-r border-emerald-600/30">ID</th>
                     <th className="p-3 border-r border-emerald-600/30">Name</th>
                     <th className="p-3 border-r border-emerald-600/30">Dept</th>
-                    <th className="p-3 border-r border-emerald-600/30">Position</th>
-                    <th className="p-3 border-r border-emerald-600/30">Check in</th>
-                    <th colSpan={2} className="p-3 border-r border-emerald-600/30 text-center bg-emerald-800/50">OT PLAN</th>
-                    <th colSpan={2} className="p-3 border-r border-emerald-600/30 text-center bg-amber-800/50">OT RESULT</th>
-                    <th className="p-3 border-r border-emerald-600/30">Reason for OT</th>
-                    <th className="p-3 border-r border-emerald-600/30">Trạng thái</th>
+                    <th className="p-3 border-r border-emerald-600/30">
+                      Position
+                    </th>
+                    <th className="p-3 border-r border-emerald-600/30">
+                      Check in
+                    </th>
+                    <th
+                      colSpan={2}
+                      className="p-3 border-r border-emerald-600/30 text-center bg-emerald-800/50"
+                    >
+                      OT PLAN
+                    </th>
+                    <th
+                      colSpan={2}
+                      className="p-3 border-r border-emerald-600/30 text-center bg-amber-800/50"
+                    >
+                      OT RESULT
+                    </th>
+                    <th className="p-3 border-r border-emerald-600/30">
+                      Reason for OT
+                    </th>
+                    <th className="p-3 border-r border-emerald-600/30">
+                      Trạng thái
+                    </th>
                     <th className="p-3">Thao tác</th>
                   </tr>
                   <tr className="bg-gray-50 text-gray-600 font-semibold border-b-2 border-gray-200">
@@ -281,10 +377,18 @@ export default function OvertimeManagement() {
                     <th className="p-2 border-r border-gray-200"></th>
                     <th className="p-2 border-r border-gray-200"></th>
                     <th className="p-2 border-r border-gray-200"></th>
-                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">OT Start</th>
-                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">OT Finish</th>
-                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">OT Start</th>
-                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">OT Finish</th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">
+                      OT Start
+                    </th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-emerald-50">
+                      OT Finish
+                    </th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">
+                      OT Start
+                    </th>
+                    <th className="p-2 border-r border-gray-200 text-center bg-amber-50">
+                      OT Finish
+                    </th>
                     <th className="p-2 border-r border-gray-200"></th>
                     <th className="p-2 border-r border-gray-200"></th>
                     <th className="p-2"></th>
@@ -292,23 +396,44 @@ export default function OvertimeManagement() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {requests.map((req, idx) => {
-                    const statusCfg = STATUS_CONFIG[req.status] || STATUS_CONFIG.PENDING;
+                    const statusCfg =
+                      STATUS_CONFIG[req.status] || STATUS_CONFIG.PENDING;
                     const StatusIcon = statusCfg.icon;
-                    const isOwner = req.user?._id === user?.id || req.user?._id === user?._id;
+                    const isOwner =
+                      req.user?._id === user?.id || req.user?._id === user?._id;
                     const isEditingThis = editingResult === req._id;
 
                     return (
-                      <tr key={req._id} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-3 text-gray-500">{(currentPage - 1) * 20 + idx + 1}</td>
-                        <td className="p-3 font-semibold text-blue-700">{req.user?.idCompanny || "—"}</td>
-                        <td className="p-3 font-medium text-gray-900">{req.user?.displayName || "—"}</td>
-                        <td className="p-3 text-gray-600">{req.user?.department || "—"}</td>
-                        <td className="p-3 text-gray-600">{req.user?.position || "—"}</td>
-                        <td className="p-3 whitespace-nowrap text-gray-600">{formatDate(req.checkInDate)}</td>
+                      <tr
+                        key={req._id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="p-3 text-gray-500">
+                          {(currentPage - 1) * 20 + idx + 1}
+                        </td>
+                        <td className="p-3 font-semibold text-blue-700">
+                          {req.user?.idCompanny || "—"}
+                        </td>
+                        <td className="p-3 font-medium text-gray-900">
+                          {req.user?.displayName || "—"}
+                        </td>
+                        <td className="p-3 text-gray-600">
+                          {req.user?.department || "—"}
+                        </td>
+                        <td className="p-3 text-gray-600">
+                          {req.user?.position || "—"}
+                        </td>
+                        <td className="p-3 whitespace-nowrap text-gray-600">
+                          {formatDate(req.checkInDate)}
+                        </td>
 
                         {/* OT Plan */}
-                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">{req.otPlanStart}</td>
-                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">{req.otPlanFinish}</td>
+                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">
+                          {req.otPlanStart}
+                        </td>
+                        <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30">
+                          {req.otPlanFinish}
+                        </td>
 
                         {/* OT Result */}
                         <td className="p-3 text-center bg-amber-50/30">
@@ -316,11 +441,22 @@ export default function OvertimeManagement() {
                             <input
                               type="time"
                               value={resultForm.otResultStart}
-                              onChange={(e) => setResultForm((p) => ({ ...p, otResultStart: e.target.value }))}
-                              className="w-[90px] p-1 border border-amber-300 rounded bg-white text-center"
+                              onChange={(e) =>
+                                setResultForm((p) => ({
+                                  ...p,
+                                  otResultStart: e.target.value,
+                                }))
+                              }
+                              className="w-24 p-1 border border-amber-300 rounded bg-white text-center"
                             />
                           ) : (
-                            <span className={req.otResultStart ? "font-bold text-amber-800" : "text-gray-300"}>
+                            <span
+                              className={
+                                req.otResultStart
+                                  ? "font-bold text-amber-800"
+                                  : "text-gray-300"
+                              }
+                            >
                               {req.otResultStart || "—"}
                             </span>
                           )}
@@ -330,22 +466,41 @@ export default function OvertimeManagement() {
                             <input
                               type="time"
                               value={resultForm.otResultFinish}
-                              onChange={(e) => setResultForm((p) => ({ ...p, otResultFinish: e.target.value }))}
-                              className="w-[90px] p-1 border border-amber-300 rounded bg-white text-center"
+                              onChange={(e) =>
+                                setResultForm((p) => ({
+                                  ...p,
+                                  otResultFinish: e.target.value,
+                                }))
+                              }
+                              className="w-24 p-1 border border-amber-300 rounded bg-white text-center"
                             />
                           ) : (
-                            <span className={req.otResultFinish ? "font-bold text-amber-800" : "text-gray-300"}>
+                            <span
+                              className={
+                                req.otResultFinish
+                                  ? "font-bold text-amber-800"
+                                  : "text-gray-300"
+                              }
+                            >
                               {req.otResultFinish || "—"}
                             </span>
                           )}
                         </td>
 
-                        <td className="p-3 max-w-[200px] truncate text-gray-600" title={req.reason}>{req.reason}</td>
+                        <td
+                          className="p-3 max-w-50 truncate text-gray-600"
+                          title={req.reason}
+                        >
+                          {req.reason}
+                        </td>
 
                         <td className="p-3">
                           <span
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap"
-                            style={{ backgroundColor: statusCfg.bg, color: statusCfg.color }}
+                            style={{
+                              backgroundColor: statusCfg.bg,
+                              color: statusCfg.color,
+                            }}
                           >
                             <StatusIcon className="w-3 h-3" />
                             {statusCfg.label}
@@ -356,21 +511,60 @@ export default function OvertimeManagement() {
                           <div className="flex items-center gap-1">
                             {canApprove && req.status === "PENDING" && (
                               <>
-                                <button onClick={() => handleApprove(req._id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Phê duyệt"><Check className="w-4 h-4" /></button>
-                                <button onClick={() => handleReject(req._id)} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors" title="Từ chối"><X className="w-4 h-4" /></button>
+                                <button
+                                  onClick={() => handleApprove(req._id)}
+                                  className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                                  title="Phê duyệt"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleReject(req._id)}
+                                  className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                                  title="Từ chối"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
                               </>
                             )}
-                            {canApprove && (req.status === "APPROVED" || req.status === "COMPLETED") && !isEditingThis && (
-                              <button onClick={() => startEditResult(req)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Sửa kết quả"><Edit3 className="w-4 h-4" /></button>
-                            )}
+                            {canApprove &&
+                              (req.status === "APPROVED" ||
+                                req.status === "COMPLETED") &&
+                              !isEditingThis && (
+                                <button
+                                  onClick={() => startEditResult(req)}
+                                  className="p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                                  title="Sửa kết quả"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                              )}
                             {isEditingThis && (
                               <>
-                                <button onClick={() => handleSaveResult(req._id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Lưu"><Save className="w-4 h-4" /></button>
-                                <button onClick={() => setEditingResult(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors" title="Hủy"><X className="w-4 h-4" /></button>
+                                <button
+                                  onClick={() => handleSaveResult(req._id)}
+                                  className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                                  title="Lưu"
+                                >
+                                  <Save className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => setEditingResult(null)}
+                                  className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+                                  title="Hủy"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
                               </>
                             )}
                             {isOwner && req.status === "PENDING" && (
-                              <button onClick={() => handleCancel(req._id)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors" title="Hủy yêu cầu"><X className="w-4 h-4" /></button>
+                              <button
+                                onClick={() => handleCancel(req._id)}
+                                className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+                                title="Hủy yêu cầu"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
                             )}
                           </div>
                         </td>
@@ -396,7 +590,9 @@ export default function OvertimeManagement() {
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, currentPage + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   >
@@ -411,84 +607,3 @@ export default function OvertimeManagement() {
     </div>
   );
 }
-
-// Action button component
-function ActionBtn({ icon: Icon, color, title, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "28px",
-        height: "28px",
-        borderRadius: "6px",
-        border: "none",
-        backgroundColor: "transparent",
-        color: color,
-        cursor: "pointer",
-        transition: "all 0.15s",
-      }}
-      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      <Icon style={{ width: "16px", height: "16px" }} />
-    </button>
-  );
-}
-
-// Styles
-const thStyle = {
-  padding: "10px 12px",
-  textAlign: "left",
-  fontSize: "12px",
-  fontWeight: "700",
-  color: "white",
-  backgroundColor: "#4A7C59",
-  textTransform: "uppercase",
-  letterSpacing: "0.5px",
-  whiteSpace: "nowrap",
-  borderRight: "1px solid rgba(255,255,255,0.2)",
-};
-
-const thSubStyle = {
-  padding: "6px 12px",
-  textAlign: "center",
-  fontSize: "11px",
-  fontWeight: "600",
-  color: "#374151",
-  backgroundColor: "#F3F4F6",
-  borderBottom: "2px solid #D1D5DB",
-  whiteSpace: "nowrap",
-};
-
-const tdStyle = {
-  padding: "10px 12px",
-  fontSize: "13px",
-  color: "#374151",
-  verticalAlign: "middle",
-};
-
-const timeInputStyle = {
-  width: "90px",
-  padding: "4px 6px",
-  border: "1px solid #D1D5DB",
-  borderRadius: "6px",
-  fontSize: "13px",
-  textAlign: "center",
-};
-
-const paginationBtnStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "32px",
-  height: "32px",
-  borderRadius: "8px",
-  border: "1px solid #D1D5DB",
-  backgroundColor: "white",
-  cursor: "pointer",
-  color: "#374151",
-};

@@ -24,8 +24,10 @@ import LuggageManagement from "./pages/Luggage/LuggageManagement";
 import LuggageRegisterPage from "./pages/Luggage/LuggageRegisterPage";
 import LeaveManagement from "./pages/LeaveManagement/LeaveManagement";
 import LeaveRegisterPage from "./pages/LeaveManagement/LeaveRegisterPage";
+import LeaveReportPage from "./pages/LeaveManagement/LeaveReportPage";
 import OvertimeManagement from "./pages/OvertimeManagement/OvertimeManagement";
 import OvertimeRegisterPage from "./pages/OvertimeManagement/OvertimeRegisterPage";
+import OvertimeReportPage from "./pages/OvertimeManagement/OvertimeReportPage";
 
 const App = () => {
   return (
@@ -94,8 +96,27 @@ const App = () => {
             />
             <Route path="leave" element={<LeaveManagement />} />
             <Route path="leave/register" element={<LeaveRegisterPage />} />
+            <Route
+              path="leave/reports"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <LeaveReportPage />
+                </RoleProtectedRoute>
+              }
+            />
             <Route path="overtime" element={<OvertimeManagement />} />
-            <Route path="overtime/register" element={<OvertimeRegisterPage />} />
+            <Route
+              path="overtime/register"
+              element={<OvertimeRegisterPage />}
+            />
+            <Route
+              path="overtime/reports"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <OvertimeReportPage />
+                </RoleProtectedRoute>
+              }
+            />
             <Route
               path="luggage"
               element={

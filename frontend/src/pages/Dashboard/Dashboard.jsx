@@ -198,7 +198,7 @@ function DetailPanel({ type, department, cardConfig, onClose }) {
                   <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.col3}</td>
                   <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.col4}</td>
                   <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.col5}</td>
-                  <td className="px-4 py-3 text-slate-500 max-w-[200px] truncate" title={row.col6}>{row.col6}</td>
+                  <td className="px-4 py-3 text-slate-500 max-w-50 truncate" title={row.col6}>{row.col6}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusStyle(row.status)}`}
