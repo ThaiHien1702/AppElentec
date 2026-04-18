@@ -124,7 +124,7 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký đồ vật",
           path: "/luggage/register",
           icon: Plus,
-          show: canAccessManagement,
+          show: false,
         },
         {
           name: "Báo cáo quản lý đồ đạc",
@@ -212,26 +212,29 @@ const DashboardLayout = ({ children }) => {
         }`}
       >
         {/* Phần Logo/Thương hiệu */}
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Elentec System
-            </h2>
-            <div className="mt-3">
-              <span
-                className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${getRoleBadgeColor()}`}
-              >
-                {role?.toUpperCase() || "USER"}
-              </span>
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Elentec System
+              </h2>
             </div>
+            {/* Nút đóng sidebar (chỉ hiện trên Mobile) */}
+            <button
+              onClick={closeSidebar}
+              className="md:hidden text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
-          {/* Nút đóng sidebar (chỉ hiện trên Mobile) */}
-          <button
-            onClick={closeSidebar}
-            className="md:hidden text-gray-500 hover:text-gray-700"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <div className="flex items-center justify-between">
+            <span
+              className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${getRoleBadgeColor()}`}
+            >
+              {role?.toUpperCase() || "USER"}
+            </span>
+            <ProfileDropdown />
+          </div>
         </div>
 
         {/* Menu Điều hướng */}
@@ -282,7 +285,7 @@ const DashboardLayout = ({ children }) => {
       {/* Nội dung chính */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* Thanh trên cùng (Header) */}
-        <header className="bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
+        <header className="  hidden bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
           <div className="flex items-center justify-between px-4 md:px-6 py-4">
             <div className="flex items-center gap-4">
               {/* Nút Hamburger (chỉ hiện trên Mobile) */}
@@ -307,7 +310,6 @@ const DashboardLayout = ({ children }) => {
                 </div>
               </div>
             </div>
-            <ProfileDropdown />
           </div>
           {/* Thông tin user phụ trên Mobile */}
           <div className="sm:hidden px-4 pb-3 border-t border-gray-100 pt-2 flex justify-between items-center text-[11px] text-gray-500 bg-gray-50/50">
