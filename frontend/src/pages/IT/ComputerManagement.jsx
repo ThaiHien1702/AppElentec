@@ -689,7 +689,7 @@ const ComputerManagement = () => {
                         placeholder="00:1A:2B:3C:4D:5E"
                       />
                       <FormField
-                        label="Thông tin PC của bạn"
+                        label="Name User PC"
                         type="text"
                         name="userNamePc"
                         value={formData.userNamePc}
@@ -724,28 +724,28 @@ const ComputerManagement = () => {
                         Cấu hình PC
                       </h3>
                       <FormField
-                        label="Mô hình"
+                        label="Model máy"
                         type="text"
                         name="systemModel"
                         value={formData.systemModel}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Thẻ dịch vụ"
+                        label="serial number "
                         type="text"
                         name="serviceTag"
                         value={formData.serviceTag}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Bộ xử lý trung tâm"
+                        label="CPU"
                         type="text"
                         name="cpu"
                         value={formData.cpu}
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Bộ nhớ"
+                        label="RAM"
                         type="text"
                         name="ram"
                         value={formData.ram}
@@ -766,7 +766,7 @@ const ComputerManagement = () => {
                         onChange={handleChange}
                       />
                       <FormField
-                        label="Bộ xử lý đồ họa"
+                        label="VGA"
                         type="text"
                         name="vga"
                         value={formData.vga}
@@ -789,7 +789,7 @@ const ComputerManagement = () => {
                 content: (
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
-                      label="ID (Employee No.) *"
+                      label="ID (Employee No.)"
                       type="text"
                       name="employeeNo"
                       value={formData.employeeNo}
@@ -798,7 +798,7 @@ const ComputerManagement = () => {
                     />
 
                     <FormField
-                      label="Full Name *"
+                      label="Full Name"
                       type="text"
                       name="userName"
                       value={formData.userName}
@@ -806,7 +806,7 @@ const ComputerManagement = () => {
                       required
                     />
                     <FormField
-                      label="DeptDept *"
+                      label="Bộ phận"
                       type="text"
                       name="department"
                       value={formData.department}
@@ -814,7 +814,7 @@ const ComputerManagement = () => {
                       required
                     />
                     <FormField
-                      label="Email *"
+                      label="Email"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -830,7 +830,7 @@ const ComputerManagement = () => {
                       onChange={handleChange}
                     />
                     <SelectField
-                      label="Vị trí"
+                      label="Chức vụ"
                       name="position"
                       value={formData.position}
                       onChange={handleChange}
