@@ -1,6 +1,7 @@
 import VisitRequest from "../models/VisitRequest.js";
 import Leave from "../models/Leave.js";
 import Overtime from "../models/Overtime.js";
+import Luggage from "../models/Luggage.js";
 import User from "../models/User.js";
 import XLSX from "xlsx";
 
@@ -904,6 +905,291 @@ export const exportOvertimeReport = async (req, res) => {
     return res.status(200).send(buffer);
   } catch (error) {
     console.error("Lỗi khi export báo cáo giờ làm thêm", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Luggage Report: realtime statistics
+export const getLuggageRealtimeReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const todayEnd = endOfDay(now);
+
+    const [
+      totalToday,
+      checkedIn,
+      checkedOut,
+      lost,
+      damaged,
+      returned,
+      latestActivities,
+    ] = await Promise.all([
+      Luggage.countDocuments({
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      }),
+      Luggage.countDocuments({ status: "CHECKED_IN" }),
+      Luggage.countDocuments({ status: "CHECKED_OUT" }),
+      Luggage.countDocuments({ status: "LOST" }),
+      Luggage.countDocuments({ status: "DAMAGED" }),
+      Luggage.countDocuments({ status: "RETURNED" }),
+      Luggage.find()
+        .sort({ updatedAt: -1 })
+        .limit(10)
+        .populate("visitRequest", "visitorName purpose")
+        .select(
+          "itemName itemType quantity status visitRequest updatedAt createdAt",
+        ),
+    ]);
+
+    return res.status(200).json({
+      generatedAt: now,
+      summary: {
+        totalToday,
+        checkedIn,
+        checkedOut,
+        lost,
+        damaged,
+        returned,
+      },
+      latestActivities,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo realtime đồ đạc", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Luggage Report: daily breakdown
+export const getLuggageDailyReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const from = req.query.from
+      ? startOfDay(new Date(req.query.from))
+      : startOfDay(new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000));
+    const to = req.query.to ? endOfDay(new Date(req.query.to)) : endOfDay(now);
+
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      return res.status(400).json({ message: "Tham số ngày không hợp lệ" });
+    }
+
+    if (from > to) {
+      return res
+        .status(400)
+        .json({ message: "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc" });
+    }
+
+    // Group by date and status
+    const grouped = await Luggage.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: from, $lte: to },
+        },
+      },
+      {
+        $project: {
+          day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          status: 1,
+        },
+      },
+      {
+        $group: {
+          _id: { day: "$day", status: "$status" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.day": 1,
+        },
+      },
+    ]);
+
+    // Normalize results to one row per day with all status columns
+    const dayMap = new Map();
+    for (const row of grouped) {
+      const day = row._id.day;
+      if (!dayMap.has(day)) {
+        dayMap.set(day, {
+          day,
+          total: 0,
+          CHECKED_IN: 0,
+          CHECKED_OUT: 0,
+          LOST: 0,
+          DAMAGED: 0,
+          RETURNED: 0,
+        });
+      }
+      const item = dayMap.get(day);
+      item[row._id.status] = row.count;
+      item.total += row.count;
+    }
+
+    const data = Array.from(dayMap.values());
+
+    return res.status(200).json({
+      from,
+      to,
+      totalDays: data.length,
+      data,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo ngày đồ đạc", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Luggage Report: items with issues (lost/damaged)
+export const getLuggageIssuesReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+
+    const rows = await Luggage.find({
+      status: { $in: ["LOST", "DAMAGED"] },
+    })
+      .sort({ createdAt: -1 })
+      .populate("visitRequest", "visitorName visitorCompany purpose hostName")
+      .populate("checkedInBy", "displayName")
+      .select(
+        "itemName itemType quantity estimatedValue status visitRequest checkedInBy createdAt description",
+      );
+
+    // Calculate days since issue
+    const data = rows.map((item) => {
+      const daysSinceIssue = Math.floor(
+        (now.getTime() - new Date(item.createdAt).getTime()) /
+          (24 * 60 * 60 * 1000),
+      );
+
+      return {
+        _id: item._id,
+        itemName: item.itemName,
+        itemType: item.itemType,
+        quantity: item.quantity,
+        estimatedValue: item.estimatedValue,
+        status: item.status,
+        visitRequest: item.visitRequest,
+        checkedInBy: item.checkedInBy,
+        createdAt: item.createdAt,
+        daysSinceIssue,
+        description: item.description,
+      };
+    });
+
+    return res.status(200).json({
+      generatedAt: now,
+      total: data.length,
+      data,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo vấn đề đồ đạc", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Luggage Report: export to Excel/CSV
+export const exportLuggageReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const from = req.query.from
+      ? startOfDay(new Date(req.query.from))
+      : startOfDay(new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000));
+    const to = req.query.to ? endOfDay(new Date(req.query.to)) : endOfDay(now);
+    const type = (req.query.type || "excel").toLowerCase();
+
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      return res.status(400).json({ message: "Tham số ngày không hợp lệ" });
+    }
+
+    if (from > to) {
+      return res
+        .status(400)
+        .json({ message: "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc" });
+    }
+
+    const luggages = await Luggage.find({
+      createdAt: { $gte: from, $lte: to },
+    })
+      .sort({ createdAt: -1 })
+      .populate("visitRequest", "visitorName visitorCompany purpose")
+      .populate("checkedInBy", "displayName");
+
+    const rows = luggages.map((item) => ({
+      visitorName: item.visitRequest?.visitorName || "N/A",
+      visitorCompany: item.visitRequest?.visitorCompany || "N/A",
+      purpose: item.visitRequest?.purpose || "N/A",
+      itemName: item.itemName,
+      itemType: item.itemType,
+      quantity: item.quantity,
+      estimatedValue: item.estimatedValue || "N/A",
+      status: item.status,
+      checkedInBy: item.checkedInBy?.displayName || "N/A",
+      description: item.description || "",
+      createdAt: new Date(item.createdAt).toLocaleString("vi-VN"),
+    }));
+
+    const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+
+    if (type === "csv") {
+      const headers = [
+        "visitorName",
+        "visitorCompany",
+        "purpose",
+        "itemName",
+        "itemType",
+        "quantity",
+        "estimatedValue",
+        "status",
+        "checkedInBy",
+        "description",
+        "createdAt",
+      ];
+
+      const csv = [
+        headers.join(","),
+        ...rows.map((row) =>
+          headers
+            .map((key) => {
+              const value = row[key] ?? "";
+              const safe = String(value).replace(/"/g, '""');
+              return `"${safe}"`;
+            })
+            .join(","),
+        ),
+      ].join("\n");
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="luggage-report-${stamp}.csv"`,
+      );
+      return res.status(200).send(`\uFEFF${csv}`);
+    }
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LuggageReport");
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="luggage-report-${stamp}.xlsx"`,
+    );
+    return res.status(200).send(buffer);
+  } catch (error) {
+    console.error("Lỗi khi export báo cáo đồ đạc", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

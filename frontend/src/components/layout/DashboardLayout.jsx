@@ -121,9 +121,15 @@ const DashboardLayout = ({ children }) => {
           show: canAccessManagement,
         },
         {
-          name: "Ghi nhận vật dụng",
+          name: "Đăng ký đồ vật",
           path: "/luggage/register",
           icon: Plus,
+          show: canAccessManagement,
+        },
+        {
+          name: "Báo cáo quản lý đồ đạc",
+          path: "/luggage/reports",
+          icon: BarChart3,
           show: canAccessManagement,
         },
       ],

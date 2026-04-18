@@ -117,6 +117,36 @@ export const importOvertimeData = async (file) => {
 };
 
 /**
+ * Download luggage template
+ */
+export const downloadLuggageTemplate = () => {
+  downloadExcelFile(
+    API_PATHS.LUGGAGE_TEMPLATE,
+    `luggage-template-${new Date().toISOString().slice(0, 10)}.xlsx`,
+  );
+};
+
+/**
+ * Export luggage data to Excel
+ * @param {string} status - Filter by status (optional)
+ */
+export const exportLuggageData = (status = "") => {
+  const url = API_PATHS.LUGGAGE_EXPORT(status);
+  downloadExcelFile(
+    url,
+    `luggage-export-${new Date().toISOString().slice(0, 10)}.xlsx`,
+  );
+};
+
+/**
+ * Import luggage data from Excel
+ * @param {File} file - Excel file
+ */
+export const importLuggageData = async (file) => {
+  return uploadExcelFile(API_PATHS.LUGGAGE_IMPORT, file);
+};
+
+/**
  * Format import results for display
  * @param {object} result - Result from import API
  * @returns {Array} Formatted results

@@ -22,6 +22,7 @@ import ApprovalInbox from "./pages/Access/ApprovalInbox";
 import AccessReportPage from "./pages/Access/AccessReportPage";
 import LuggageManagement from "./pages/Luggage/LuggageManagement";
 import LuggageRegisterPage from "./pages/Luggage/LuggageRegisterPage";
+import LuggageReportPage from "./pages/Luggage/LuggageReportPage";
 import LeaveManagement from "./pages/LeaveManagement/LeaveManagement";
 import LeaveRegisterPage from "./pages/LeaveManagement/LeaveRegisterPage";
 import LeaveReportPage from "./pages/LeaveManagement/LeaveReportPage";
@@ -130,6 +131,14 @@ const App = () => {
               element={
                 <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
                   <LuggageRegisterPage />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="luggage/reports"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <LuggageReportPage />
                 </RoleProtectedRoute>
               }
             />

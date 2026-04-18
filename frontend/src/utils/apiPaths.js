@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "./apiBaseUrl";
+// import { getApiBaseUrl } from "./apiBaseUrl";
 
 // BASE_URL để trống vì axiosInstance đã được cấu hình baseURL từ getApiBaseUrl()
 const BASE_URL = "";
@@ -100,6 +100,16 @@ export const API_PATHS = {
   LUGGAGE_UPDATE_STATUS: (id) => `${BASE_URL}/luggage/${id}/status`,
   LUGGAGE_DELETE: (id) => `${BASE_URL}/luggage/${id}`,
   LUGGAGE_STATS: `${BASE_URL}/luggage/stats/summary`,
+  LUGGAGE_TEMPLATE: `${BASE_URL}/luggage/excel/template`,
+  LUGGAGE_EXPORT: (status) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/luggage/excel/export?${query}`
+      : `${BASE_URL}/luggage/excel/export`;
+  },
+  LUGGAGE_IMPORT: `${BASE_URL}/luggage/excel/import`,
   LUGGAGE_WITH_FILTERS: (status, visitId, itemType, page, limit) => {
     const params = new URLSearchParams();
     if (status) params.append("status", status);
@@ -143,6 +153,18 @@ export const API_PATHS = {
     if (from) params.append("from", from);
     if (to) params.append("to", to);
     return `${BASE_URL}/reports/overtime/export?${params.toString()}`;
+  },
+
+  // Luggage report endpoints
+  LUGGAGE_REPORT_REALTIME: `${BASE_URL}/reports/luggage/realtime`,
+  LUGGAGE_REPORT_DAILY: `${BASE_URL}/reports/luggage/daily`,
+  LUGGAGE_REPORT_ISSUES: `${BASE_URL}/reports/luggage/issues`,
+  LUGGAGE_REPORT_EXPORT: (type = "excel", from = "", to = "") => {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    return `${BASE_URL}/reports/luggage/export?${params.toString()}`;
   },
 
   ACCESS_POLICIES: `${BASE_URL}/access-control/policies`,

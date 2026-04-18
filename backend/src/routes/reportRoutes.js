@@ -13,6 +13,10 @@ import {
   getOvertimeDailyReport,
   getOvertimePendingReport,
   exportOvertimeReport,
+  getLuggageRealtimeReport,
+  getLuggageDailyReport,
+  getLuggageIssuesReport,
+  exportLuggageReport,
 } from "../controllers/reportController.js";
 
 const router = express.Router();
@@ -44,5 +48,16 @@ router.get(
   getOvertimePendingReport,
 );
 router.get("/overtime/export", verifyToken, isModerator, exportOvertimeReport);
+
+// Luggage report endpoints
+router.get(
+  "/luggage/realtime",
+  verifyToken,
+  isModerator,
+  getLuggageRealtimeReport,
+);
+router.get("/luggage/daily", verifyToken, isModerator, getLuggageDailyReport);
+router.get("/luggage/issues", verifyToken, isModerator, getLuggageIssuesReport);
+router.get("/luggage/export", verifyToken, isModerator, exportLuggageReport);
 
 export default router;

@@ -1,11 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Plus } from "lucide-react";
+import { Package, Plus, Download, Upload } from "lucide-react";
 import axiosInstance from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { handleApiError } from "../../utils/apiHandler";
+import {
+  exportLuggageData,
+  downloadLuggageTemplate,
+  importLuggageData,
+  formatImportResults,
+} from "../../utils/excelUtils";
 import LuggageStats from "../Access/LuggageStats";
 import LuggageDetail from "../Access/LuggageDetail";
+import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
 
 const statusColors = {
   CHECKED_IN: "bg-blue-100 text-blue-800",
@@ -33,11 +41,14 @@ const itemTypeLabels = {
 
 const LuggageManagement = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("list");
   const [luggage, setLuggage] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedLuggage, setSelectedLuggage] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [importLoading, setImportLoading] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -73,26 +84,96 @@ const LuggageManagement = () => {
     }
   }, [filters, activeTab, refreshCount, fetchLuggage]);
 
+  const handleExportData = () => {
+    try {
+      exportLuggageData(filters.status);
+    } catch (error) {
+      handleApiError(error, "Lỗi khi xuất dữ liệu Excel");
+    }
+  };
+
+  const handleImportFile = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    try {
+      const result = await importLuggageData(file);
+      const formatted = formatImportResults(result);
+      toast.success(
+        `Import thành công ${formatted.success}/${formatted.total} bản ghi`,
+      );
+      fetchLuggage();
+    } catch (error) {
+      handleApiError(error, "Lỗi khi import dữ liệu Excel");
+    } finally {
+      setImportLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const canApprove = user?.role === "admin" || user?.role === "moderator";
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <Package className="w-6 h-6" />
-            Quản lý đồ đạc
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Ghi nhận và theo dõi vật dụng mà khách mang vào/ra cổng
-          </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Package className="w-6 h-6 text-blue-600" />
+          Quản lý đồ đạc
+        </h1>
+        <div className="inline-flex h-10 items-center gap-2 self-start">
+          <button
+            onClick={() => navigate("/luggage/register")}
+            className="h-10 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Tạo yêu cầu
+          </button>
+
+          {canApprove && (
+            <>
+              <button
+                onClick={handleImportClick}
+                disabled={importLoading}
+                className="h-10 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                title="Import từ Excel"
+              >
+                <Upload className="w-4 h-4" />
+                {importLoading ? "Đang import..." : "Import Excel"}
+              </button>
+              <button
+                onClick={handleExportData}
+                className="h-10 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 flex items-center gap-2"
+                title="Xuất danh sách sang Excel"
+              >
+                <Download className="w-4 h-4" />
+                Export Excel
+              </button>
+              <button
+                onClick={downloadLuggageTemplate}
+                className="h-10 px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 flex items-center gap-2"
+                title="Tải mẫu Excel"
+              >
+                <Download className="w-4 h-4" />
+                Tải mẫu
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleImportFile}
+                className="hidden"
+              />
+            </>
+          )}
         </div>
-        <button
-          onClick={() => navigate("/luggage/register")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Ghi nhận vật dụng
-        </button>
       </div>
 
       {/* Tabs */}
