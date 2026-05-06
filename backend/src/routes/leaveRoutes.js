@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   createLeaveRequest,
   getMyLeaveRequests,
@@ -9,6 +10,9 @@ import {
   cancelLeaveRequest,
   updateLeaveRequest,
   getLeaveStats,
+  exportLeaveToExcel,
+  downloadLeaveTemplateExcel,
+  importLeaveFromExcel,
 } from "../controllers/leaveController.js";
 import {
   verifyToken,
@@ -17,6 +21,7 @@ import {
 } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Tất cả routes đều cần xác thực
 router.use(verifyToken);
@@ -25,6 +30,16 @@ router.use(verifyToken);
 router.post("/", createLeaveRequest); // Tạo yêu cầu nghỉ phép
 router.get("/my", getMyLeaveRequests); // Lấy yêu cầu của mình
 router.get("/stats", getLeaveStats); // Thống kê nghỉ phép
+
+// Routes cho Excel
+router.get("/excel/export", isModerator, exportLeaveToExcel); // Export dữ liệu ra Excel
+router.get("/excel/template", downloadLeaveTemplateExcel); // Download template
+router.post(
+  "/excel/import",
+  isModerator,
+  upload.single("file"),
+  importLeaveFromExcel,
+); // Import từ Excel
 
 // Routes cho admin/moderator (PHẢI đặt trước /:id để tránh bị /:id bắt trước)
 router.get("/all", isModerator, getAllLeaveRequests); // Lấy tất cả yêu cầu

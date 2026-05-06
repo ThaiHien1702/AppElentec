@@ -55,6 +55,39 @@ export const luggageService = {
     const response = await axiosInstance.get(API_PATHS.LUGGAGE_STATS);
     return response.data;
   },
+
+  // Lấy báo cáo realtime hành lý
+  getLuggageRealtimeReport: async () => {
+    const response = await axiosInstance.get(API_PATHS.LUGGAGE_REPORT_REALTIME);
+    return response.data;
+  },
+
+  // Lấy báo cáo hàng ngày hành lý
+  getLuggageDailyReport: async (fromDate, toDate) => {
+    const params = new URLSearchParams();
+    if (fromDate) params.append("from", fromDate);
+    if (toDate) params.append("to", toDate);
+    const url = params.toString()
+      ? `${API_PATHS.LUGGAGE_REPORT_DAILY}?${params.toString()}`
+      : API_PATHS.LUGGAGE_REPORT_DAILY;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  },
+
+  // Lấy báo cáo vấn đề hành lý (mất/hư)
+  getLuggageIssuesReport: async () => {
+    const response = await axiosInstance.get(API_PATHS.LUGGAGE_REPORT_ISSUES);
+    return response.data;
+  },
+
+  // Export báo cáo hành lý
+  exportLuggageReport: async (type, fromDate, toDate) => {
+    const response = await axiosInstance.get(
+      API_PATHS.LUGGAGE_REPORT_EXPORT(type, fromDate, toDate),
+      { responseType: "blob" },
+    );
+    return response;
+  },
 };
 
 export default luggageService;

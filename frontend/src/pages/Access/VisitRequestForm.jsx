@@ -251,25 +251,25 @@ const VisitRequestForm = () => {
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold text-slate-800">
               {getRequestTypeLabel(formData.requestType)}
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-slate-500">
               Tạo yêu cầu {getRequestTypeLabel(formData.requestType).toLowerCase()}.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap gap-2 no-scrollbar">
             {REQUEST_TYPES.map((item) => (
               <button
                 type="button"
                 key={item.key}
                 onClick={() => onRequestTypeChange(item.key)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`flex-none rounded-full px-4 py-2 text-xs md:text-sm font-medium transition whitespace-nowrap ${
                   formData.requestType === item.key
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 {item.label}

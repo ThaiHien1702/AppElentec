@@ -1,6 +1,7 @@
-import { getApiBaseUrl } from "./apiBaseUrl";
+// import { getApiBaseUrl } from "./apiBaseUrl";
 
-const BASE_URL = getApiBaseUrl();
+// BASE_URL để trống vì axiosInstance đã được cấu hình baseURL từ getApiBaseUrl()
+const BASE_URL = "";
 
 export const API_PATHS = {
   // Các điểm cuối xác thực
@@ -99,6 +100,16 @@ export const API_PATHS = {
   LUGGAGE_UPDATE_STATUS: (id) => `${BASE_URL}/luggage/${id}/status`,
   LUGGAGE_DELETE: (id) => `${BASE_URL}/luggage/${id}`,
   LUGGAGE_STATS: `${BASE_URL}/luggage/stats/summary`,
+  LUGGAGE_TEMPLATE: `${BASE_URL}/luggage/excel/template`,
+  LUGGAGE_EXPORT: (status) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/luggage/excel/export?${query}`
+      : `${BASE_URL}/luggage/excel/export`;
+  },
+  LUGGAGE_IMPORT: `${BASE_URL}/luggage/excel/import`,
   LUGGAGE_WITH_FILTERS: (status, visitId, itemType, page, limit) => {
     const params = new URLSearchParams();
     if (status) params.append("status", status);
@@ -120,6 +131,42 @@ export const API_PATHS = {
     return `${BASE_URL}/reports/export?${params.toString()}`;
   },
 
+  // Leave report endpoints
+  LEAVE_REPORT_REALTIME: `${BASE_URL}/reports/leave/realtime`,
+  LEAVE_REPORT_DAILY: `${BASE_URL}/reports/leave/daily`,
+  LEAVE_REPORT_PENDING: `${BASE_URL}/reports/leave/pending`,
+  LEAVE_REPORT_EXPORT: (type = "excel", from = "", to = "") => {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    return `${BASE_URL}/reports/leave/export?${params.toString()}`;
+  },
+
+  // Overtime report endpoints
+  OVERTIME_REPORT_REALTIME: `${BASE_URL}/reports/overtime/realtime`,
+  OVERTIME_REPORT_DAILY: `${BASE_URL}/reports/overtime/daily`,
+  OVERTIME_REPORT_PENDING: `${BASE_URL}/reports/overtime/pending`,
+  OVERTIME_REPORT_EXPORT: (type = "excel", from = "", to = "") => {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    return `${BASE_URL}/reports/overtime/export?${params.toString()}`;
+  },
+
+  // Luggage report endpoints
+  LUGGAGE_REPORT_REALTIME: `${BASE_URL}/reports/luggage/realtime`,
+  LUGGAGE_REPORT_DAILY: `${BASE_URL}/reports/luggage/daily`,
+  LUGGAGE_REPORT_ISSUES: `${BASE_URL}/reports/luggage/issues`,
+  LUGGAGE_REPORT_EXPORT: (type = "excel", from = "", to = "") => {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    return `${BASE_URL}/reports/luggage/export?${params.toString()}`;
+  },
+
   ACCESS_POLICIES: `${BASE_URL}/access-control/policies`,
   ACCESS_POLICY_TOGGLE: (id) =>
     `${BASE_URL}/access-control/policies/${id}/toggle`,
@@ -134,6 +181,16 @@ export const API_PATHS = {
   LEAVES_CANCEL: (id) => `${BASE_URL}/leaves/${id}/cancel`,
   LEAVES_APPROVE: (id) => `${BASE_URL}/leaves/${id}/approve`,
   LEAVES_REJECT: (id) => `${BASE_URL}/leaves/${id}/reject`,
+  LEAVES_EXPORT: (status) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/leaves/excel/export?${query}`
+      : `${BASE_URL}/leaves/excel/export`;
+  },
+  LEAVES_TEMPLATE: `${BASE_URL}/leaves/excel/template`,
+  LEAVES_IMPORT: `${BASE_URL}/leaves/excel/import`,
 
   // Overtime management endpoints
   OVERTIME: `${BASE_URL}/overtime`,
@@ -146,6 +203,18 @@ export const API_PATHS = {
   OVERTIME_APPROVE: (id) => `${BASE_URL}/overtime/${id}/approve`,
   OVERTIME_REJECT: (id) => `${BASE_URL}/overtime/${id}/reject`,
   OVERTIME_RESULT: (id) => `${BASE_URL}/overtime/${id}/result`,
+  OVERTIME_EXPORT: (status, from, to) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/overtime/excel/export?${query}`
+      : `${BASE_URL}/overtime/excel/export`;
+  },
+  OVERTIME_TEMPLATE: `${BASE_URL}/overtime/excel/template`,
+  OVERTIME_IMPORT: `${BASE_URL}/overtime/excel/import`,
 
   // Dashboard stats
   DASHBOARD_STATS: `${BASE_URL}/dashboard/stats`,

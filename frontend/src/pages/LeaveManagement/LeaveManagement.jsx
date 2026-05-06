@@ -10,13 +10,23 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  Download,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { leaveService } from "../../utils/leaveService";
 import { handleApiError, handleApiSuccess } from "../../utils/apiHandler";
+import {
+  exportLeaveData,
+  downloadLeaveTemplate,
+  importLeaveData,
+  formatImportResults,
+} from "../../utils/excelUtils";
 import LeaveRequestForm from "./components/LeaveRequestForm";
 import LeaveRequestDetail from "./components/LeaveRequestDetail";
 import LeaveStats from "./components/LeaveStats";
+import toast from "react-hot-toast";
 
 const LEAVE_TYPES = {
   ANNUAL: { label: "Nghỉ năm", color: "bg-green-100 text-green-800" },
@@ -57,6 +67,8 @@ export default function LeaveManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [stats, setStats] = useState(null);
+  const [importLoading, setImportLoading] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   const fetchLeaveRequests = useCallback(async () => {
     try {
@@ -158,41 +170,116 @@ export default function LeaveManagement() {
   const canEdit = (request) =>
     request.user._id === user.id && request.status === "PENDING";
 
+  const handleExportData = () => {
+    try {
+      exportLeaveData(filterStatus);
+    } catch (error) {
+      handleApiError(error, "Lỗi khi xuất dữ liệu Excel");
+    }
+  };
+
+  const handleImportFile = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    try {
+      const result = await importLeaveData(file);
+      const formatted = formatImportResults(result);
+      toast.success(
+        `Import thành công ${formatted.success}/${formatted.total} bản ghi`,
+      );
+      fetchLeaveRequests();
+    } catch (error) {
+      handleApiError(error, "Lỗi khi import dữ liệu Excel");
+    } finally {
+      setImportLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Calendar className="w-6 h-6" />
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Calendar className="w-6 h-6 text-blue-600" />
           Quản lý nghỉ phép
         </h1>
-        <button
-          onClick={() => navigate("/leave/register")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Tạo yêu cầu nghỉ phép
-        </button>
+        <div className="inline-flex h-10 items-center gap-2 self-start">
+          <button
+            onClick={() => navigate("/leave/register")}
+            className="h-10 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Tạo yêu cầu
+          </button>
+
+          {canApprove && (
+            <>
+              <button
+                onClick={handleImportClick}
+                disabled={importLoading}
+                className="h-10 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                title="Import từ Excel"
+              >
+                <Upload className="w-4 h-4" />
+                {importLoading ? "Đang import..." : "Import Excel"}
+              </button>
+              <button
+                onClick={handleExportData}
+                className="h-10 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 flex items-center gap-2"
+                title="Xuất danh sách sang Excel"
+              >
+                <Download className="w-4 h-4" />
+                Export Excel
+              </button>
+              <button
+                onClick={downloadLeaveTemplate}
+                className="h-10 px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 flex items-center gap-2"
+                title="Tải mẫu Excel"
+              >
+                <Download className="w-4 h-4" />
+                Tải mẫu
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleImportFile}
+                className="hidden"
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Thống kê nghỉ phép (chỉ cho user thường) */}
       {stats && <LeaveStats stats={stats} />}
 
       {/* Bộ lọc */}
-      <div className="mb-4 flex gap-4">
-        <select
-          value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="border border-gray-300 rounded-lg px-3 py-2"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="PENDING">Chờ duyệt</option>
-          <option value="APPROVED">Đã duyệt</option>
-          <option value="REJECTED">Từ chối</option>
-          <option value="CANCELLED">Đã hủy</option>
-        </select>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 w-full sm:w-64 shadow-sm">
+          <select
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full bg-transparent border-none text-sm focus:ring-0 outline-none cursor-pointer"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING">Chờ duyệt</option>
+            <option value="APPROVED">Đã duyệt</option>
+            <option value="REJECTED">Từ chối</option>
+            <option value="CANCELLED">Đã hủy</option>
+          </select>
+        </div>
       </div>
 
       {/* Danh sách yêu cầu */}

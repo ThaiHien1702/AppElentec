@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.1",
     "multer": "^2.1.0",
+    "selfsigned": "^5.5.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

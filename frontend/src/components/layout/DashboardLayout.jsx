@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import ProfileDropdown from "./ProfileDropdown";
@@ -15,9 +16,12 @@ import {
   Plus,
   Box,
   Clock,
+  Menu,
+  X,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { role, user, isAdmin, isModerator } = useAuth();
   const location = useLocation();
   const canAccessManagement = isModerator() || isAdmin();
@@ -26,6 +30,9 @@ const DashboardLayout = ({ children }) => {
   const isActive = (path) => {
     return location.pathname === path;
   };
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   // Tổ chức các mục menu thành các phần
   const menuSections = [
@@ -96,6 +103,12 @@ const DashboardLayout = ({ children }) => {
           icon: CheckCheck,
           show: canAccessManagement,
         },
+        {
+          name: "Báo cáo truy cập",
+          path: "/access/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
+        },
       ],
     },
     {
@@ -108,9 +121,15 @@ const DashboardLayout = ({ children }) => {
           show: canAccessManagement,
         },
         {
-          name: "Ghi nhận vật dụng",
+          name: "Đăng ký đồ vật",
           path: "/luggage/register",
           icon: Plus,
+          show: false,
+        },
+        {
+          name: "Báo cáo quản lý đồ đạc",
+          path: "/luggage/reports",
+          icon: BarChart3,
           show: canAccessManagement,
         },
       ],
@@ -128,7 +147,13 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký nghỉ phép",
           path: "/leave/register",
           icon: Plus,
-          show: true,
+          show: false,
+        },
+        {
+          name: "Báo cáo nghỉ phép",
+          path: "/leave/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
         },
         {
           name: "Đăng ký giờ làm thêm",
@@ -140,7 +165,13 @@ const DashboardLayout = ({ children }) => {
           name: "Đăng ký OT mới",
           path: "/overtime/register",
           icon: Plus,
-          show: true,
+          show: false,
+        },
+        {
+          name: "Báo cáo giờ làm thêm",
+          path: "/overtime/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
         },
       ],
     },
@@ -165,20 +196,44 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Thanh bên */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-10 border-r border-gray-200">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Lớp phủ màn hình mờ khi mở Sidebar trên Mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Thanh bên (Sidebar) */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 border-r border-gray-200 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         {/* Phần Logo/Thương hiệu */}
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Elentec System
-          </h2>
-          <div className="mt-3">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Elentec System
+              </h2>
+            </div>
+            {/* Nút đóng sidebar (chỉ hiện trên Mobile) */}
+            <button
+              onClick={closeSidebar}
+              className="md:hidden text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          <div className="flex items-center justify-between">
             <span
               className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${getRoleBadgeColor()}`}
             >
-              {role.toUpperCase()}
+              {role?.toUpperCase() || "USER"}
             </span>
+            <ProfileDropdown />
           </div>
         </div>
 
@@ -201,6 +256,7 @@ const DashboardLayout = ({ children }) => {
                       <Link
                         key={item.path}
                         to={item.path}
+                        onClick={closeSidebar}
                         className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                           active
                             ? "bg-blue-50 text-blue-700 shadow-sm"
@@ -227,27 +283,43 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Nội dung chính */}
-      <div className="ml-64 min-h-screen">
-        {/* Thanh trên cùng */}
-        <header className="bg-white shadow-sm sticky top-0 z-20 border-b border-gray-200">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-800">
-                {getPageTitle()}
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                {user?.displayName || user?.idCompanny || user?.username}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Phòng ban: {user?.department || "Chưa được gán"}
-              </p>
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
+        {/* Thanh trên cùng (Header) */}
+        <header className="  hidden bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 md:px-6 py-4">
+            <div className="flex items-center gap-4">
+              {/* Nút Hamburger (chỉ hiện trên Mobile) */}
+              <button
+                onClick={toggleSidebar}
+                className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Toggle menu"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <div>
+                <h1 className="text-xl md:text-2xl font-semibold text-gray-800 leading-tight">
+                  {getPageTitle()}
+                </h1>
+                <div className="hidden sm:block mt-0.5">
+                  <p className="text-sm text-gray-500">
+                    {user?.displayName || user?.idCompanny || user?.username}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Phòng ban: {user?.department || "Chưa được gán"}
+                  </p>
+                </div>
+              </div>
             </div>
-            <ProfileDropdown />
+          </div>
+          {/* Thông tin user phụ trên Mobile */}
+          <div className="sm:hidden px-4 pb-3 border-t border-gray-100 pt-2 flex justify-between items-center text-[11px] text-gray-500 bg-gray-50/50">
+            <span>{user?.displayName || user?.username}</span>
+            <span>Phòng: {user?.department}</span>
           </div>
         </header>
 
         {/* Nội dung trang */}
-        <main className="p-6">{children}</main>
+        <main className="p-4 md:p-6 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );
