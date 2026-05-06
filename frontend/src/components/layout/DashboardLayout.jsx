@@ -227,18 +227,17 @@ const DashboardLayout = ({ children }) => {
               <X className="w-6 h-6" />
             </button>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start">
             <span
               className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${getRoleBadgeColor()}`}
             >
               {role?.toUpperCase() || "USER"}
             </span>
-            <ProfileDropdown />
           </div>
         </div>
 
         {/* Menu Điều hướng */}
-        <nav className="mt-4 px-3 overflow-y-auto h-[calc(100vh-140px)]">
+        <nav className="mt-4 px-3 overflow-y-auto h-[calc(100vh-200px)]">
           {menuSections.map((section) => {
             const visibleItems = section.items.filter((item) => item.show);
             if (visibleItems.length === 0) return null;
@@ -280,6 +279,11 @@ const DashboardLayout = ({ children }) => {
             );
           })}
         </nav>
+
+        {/* Phần Hồ sơ ở dưới cùng của Sidebar */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white">
+          <ProfileDropdown isBottomBar={true} />
+        </div>
       </aside>
 
       {/* Nội dung chính */}

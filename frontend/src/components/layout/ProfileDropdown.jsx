@@ -3,7 +3,7 @@ import { ChevronDown, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-const ProfileDropdown = () => {
+const ProfileDropdown = ({ isBottomBar = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { signout, user } = useAuth();
@@ -12,6 +12,27 @@ const ProfileDropdown = () => {
     await signout();
     navigate("/login");
   };
+
+  if (isBottomBar) {
+    return (
+      <div className="w-full flex gap-2">
+        <button
+          onClick={handleLogout}
+          className="flex-1 text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center rounded-lg"
+        >
+          <LogOut className="w-4 h-4 mr-1 flex-shrink-0" />
+          <span className="truncate">Đăng xuất</span>
+        </button>
+        <button
+          onClick={() => navigate("/profile")}
+          className="flex-1 text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center rounded-lg"
+        >
+          <User className="w-4 h-4 mr-1 flex-shrink-0" />
+          <span className="truncate">Xem hồ sơ</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
