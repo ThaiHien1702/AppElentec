@@ -41,49 +41,51 @@ const Footer = () => (
             <span className="text-xl font-bold">Elentec</span>
           </Link>
           <p className="text-gray-400 leading-relaxed max-w-sm">
-            The simplest way to build and deploy web applications.
+            Cách đơn giản nhất để xây dựng và triển khai các ứng dụng web.
           </p>
         </div>
         <div>
-          <h3 className="text-base font-semibold mb-4">Product</h3>
+          <h3 className="text-base font-semibold mb-4">Sản phẩm</h3>
           <ul className="space-y-2">
             <li className="">
-              <FooterLink to="/features">Features</FooterLink>
+              <FooterLink to="/features">Tính năng</FooterLink>
             </li>
             <li className="">
-              <FooterLink to="/testimonials">Testimonials</FooterLink>
+              <FooterLink to="/testimonials">Đánh giá</FooterLink>
             </li>
             <li className="">
-              <FooterLink to="/faqs">FAQs</FooterLink>
+              <FooterLink to="/faqs">Câu hỏi thường gặp</FooterLink>
             </li>
           </ul>
         </div>
         <div className="">
-          <h3 className="text-base font-semibold mb-4">Company</h3>
+          <h3 className="text-base font-semibold mb-4">Công ty</h3>
           <ul className="space-y-2">
             <li className="">
-              <FooterLink to="/about">About Us</FooterLink>
+              <FooterLink to="/about">Về chúng tôi</FooterLink>
             </li>
             <li className="">
-              <FooterLink to="/contact">Contact</FooterLink>
+              <FooterLink to="/contact">Liên hệ</FooterLink>
             </li>
           </ul>
         </div>
         <div className="">
-          <h3 className="text-base font-semibold mb-4">Legel</h3>
+          <h3 className="text-base font-semibold mb-4">Pháp lý</h3>
           <ul className="space-y-2">
             <li className="">
-              <FooterLink to="/privacy">Privacy Policy</FooterLink>
+              <FooterLink to="/privacy">Chính sách bảo mật</FooterLink>
             </li>
             <li className="">
-              <FooterLink to="/terms">Terms of Service</FooterLink>
+              <FooterLink to="/terms">Điều khoản dịch vụ</FooterLink>
             </li>
           </ul>
         </div>
       </div>
       <div className="border-t border-gray-800 mt-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-gray-400">© 2026 Elentec. All rights reserved.</p>
+          <p className="text-gray-400">
+            © 2026 Elentec. Tất cả các quyền được bảo lưu.
+          </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <SocialLink href="#">
               <Github className="w-5 h-5 text-white"></Github>

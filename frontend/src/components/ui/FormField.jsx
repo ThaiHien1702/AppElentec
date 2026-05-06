@@ -15,6 +15,7 @@ export const FormField = ({
   type = "text",
   required = false,
   error,
+  children,
   ...props
 }) => (
   <div>
@@ -23,12 +24,16 @@ export const FormField = ({
       {label}
       {required && <span className="text-red-500">*</span>}
     </label>
-    <input
-      type={type}
-      required={required}
-      {...props}
-      className={`${FORM_CLASSES.input} ${error ? "border-red-500" : ""}`}
-    />
+    {children ? (
+      <div className="mt-2">{children}</div>
+    ) : (
+      <input
+        type={type}
+        required={required}
+        {...props}
+        className={`${FORM_CLASSES.input} ${error ? "border-red-500" : ""}`}
+      />
+    )}
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );

@@ -11,6 +11,10 @@ import {
   CheckCheck,
   BarChart3,
   Package,
+  Calendar,
+  Plus,
+  Box,
+  Clock,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -29,7 +33,7 @@ const DashboardLayout = ({ children }) => {
       title: "Tổng quan",
       items: [
         {
-          name: `Departments - ${currentDepartmentLabel}`,
+          name: `Bộ Phận - ${currentDepartmentLabel}`,
           path: "/dashboard",
           icon: LayoutDashboard,
           show: true,
@@ -58,7 +62,7 @@ const DashboardLayout = ({ children }) => {
           show: isAdmin(), // Admin sẽ thấy Departments ở phần Quản lý
         },
         {
-          name: "Computer Management",
+          name: "Quản lý máy tính",
           path: "/it/computers",
           icon: Monitor,
           show: isAdmin(),
@@ -69,35 +73,74 @@ const DashboardLayout = ({ children }) => {
           icon: ShieldCheck,
           show: isAdmin(),
         },
+      ],
+    },
+    {
+      title: "Quản lý Truy cập",
+      items: [
         {
-          name: "Visit Requests",
+          name: "Đăng ký ra/vào cổng",
           path: "/access/requests",
           icon: ClipboardList,
           show: canAccessManagement,
         },
         {
-          name: "Gate Console",
+          name: "Check-in/Check-out",
           path: "/access/gate",
           icon: ScanLine,
           show: canAccessManagement,
         },
         {
-          name: "Approval Inbox",
+          name: "Phê duyệt yêu cầu",
           path: "/access/approvals",
           icon: CheckCheck,
           show: canAccessManagement,
         },
+      ],
+    },
+    {
+      title: "Kho Hàng",
+      items: [
         {
-          name: "Luggage Management",
-          path: "/access/luggage",
-          icon: Package,
+          name: "Quản lý đồ đạc",
+          path: "/luggage",
+          icon: Box,
           show: canAccessManagement,
         },
         {
-          name: "Access Reports",
-          path: "/access/reports",
-          icon: BarChart3,
+          name: "Ghi nhận vật dụng",
+          path: "/luggage/register",
+          icon: Plus,
           show: canAccessManagement,
+        },
+      ],
+    },
+    {
+      title: "Nhân sự",
+      items: [
+        {
+          name: "Quản lý nghỉ phép",
+          path: "/leave",
+          icon: Calendar,
+          show: true, // Tất cả user đều có thể truy cập
+        },
+        {
+          name: "Đăng ký nghỉ phép",
+          path: "/leave/register",
+          icon: Plus,
+          show: true,
+        },
+        {
+          name: "Đăng ký giờ làm thêm",
+          path: "/overtime",
+          icon: Clock,
+          show: true,
+        },
+        {
+          name: "Đăng ký OT mới",
+          path: "/overtime/register",
+          icon: Plus,
+          show: true,
         },
       ],
     },

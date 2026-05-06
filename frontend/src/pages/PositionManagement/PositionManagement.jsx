@@ -88,10 +88,10 @@ export default function PositionManagement() {
 
   const getPositionColor = (position) => {
     const colors = {
-      Manager: "bg-red-100 text-red-800 border-red-300",
-      "Assistant Manager": "bg-orange-100 text-orange-800 border-orange-300",
-      Supervisor: "bg-blue-100 text-blue-800 border-blue-300",
-      Staff: "bg-gray-100 text-gray-800 border-gray-300",
+      "Quản lý": "bg-red-100 text-red-800 border-red-300",
+      "Trợ lý Quản lý": "bg-orange-100 text-orange-800 border-orange-300",
+      "Giám sát viên": "bg-blue-100 text-blue-800 border-blue-300",
+      "Nhân viên": "bg-gray-100 text-gray-800 border-gray-300",
     };
     return colors[position] || "bg-gray-100 text-gray-800";
   };
@@ -238,7 +238,7 @@ export default function PositionManagement() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="font-semibold text-red-700 mb-2">
-              Manager (Cấp 4)
+              Quản lý (Cấp 4)
             </div>
             <ul className="text-sm text-gray-700 space-y-1 ml-4">
               <li>✓ Quản lý tất cả người dùng</li>
@@ -249,7 +249,7 @@ export default function PositionManagement() {
           </div>
           <div>
             <div className="font-semibold text-orange-700 mb-2">
-              Assistant Manager (Cấp 3)
+              Trợ lý Quản lý (Cấp 3)
             </div>
             <ul className="text-sm text-gray-700 space-y-1 ml-4">
               <li>✓ Xem báo cáo</li>

@@ -6,6 +6,12 @@ const ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || "your-32-character-secret-key!!"; // Must be 32 characters
 const IV_LENGTH = 16; // For AES, this is always 16
 
+if (!process.env.ENCRYPTION_KEY) {
+  console.warn(
+    "[Security] WARNING: ENCRYPTION_KEY not set in environment. Using default fallback key. Set ENCRYPTION_KEY in backend/.env for production!",
+  );
+}
+
 /**
  * Encrypt text (Product Keys, License Keys)
  * @param {string} text - Plain text to encrypt

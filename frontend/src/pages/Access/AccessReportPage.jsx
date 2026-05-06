@@ -107,7 +107,7 @@ const AccessReportPage = () => {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold text-slate-800">
-              Access Reports
+              Báo cáo truy cập
             </h1>
             <p className="mt-1 text-sm text-slate-600">
               Báo cáo realtime, theo ngày và danh sách quá giờ từ dữ liệu thực
