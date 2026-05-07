@@ -1,0 +1,66 @@
+.meal-management-page {
+  padding: 20px;
+}
+
+.meal-management-page h1 {
+  color: #333;
+  margin-bottom: 24px;
+  font-size: 28px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-button:hover {
+  color: #333;
+}
+
+.tab-button.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+}
+
+.tab-content {
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .meal-management-page {
+    padding: 12px;
+  }
+
+  .meal-management-page h1 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .tab-button {
+    padding: 10px 15px;
+    font-size: 12px;
+  }
+}
