@@ -3,6 +3,7 @@ import Leave from "../models/Leave.js";
 import Overtime from "../models/Overtime.js";
 import VisitRequest from "../models/VisitRequest.js";
 import Luggage from "../models/Luggage.js";
+import MealDistribution from "../models/MealDistribution.js";
 
 /**
  * Thống kê tổng hợp theo bộ phận.
@@ -55,6 +56,7 @@ export const getDepartmentStats = async (req, res) => {
     const leaveFilter = targetDepartment === "all" ? {} : { user: userFilter };
     const otFilter = targetDepartment === "all" ? {} : { user: userFilter };
     const visitFilter = targetDepartment === "all" ? {} : { requestedBy: userFilter };
+    const mealFilter = targetDepartment === "all" ? {} : { department: targetDepartment };
     
     let luggageQuery = {};
     if (targetDepartment !== "all") {
@@ -80,6 +82,9 @@ export const getDepartmentStats = async (req, res) => {
       luggageTotal,
       luggageIn,
       luggageOut,
+      mealTotal,
+      mealPending,
+      mealServed,
     ] = await Promise.all([
       // Leave stats
       Leave.countDocuments({ ...leaveFilter, createdAt: { $gte: yearStart, $lte: yearEnd } }),
@@ -101,6 +106,10 @@ export const getDepartmentStats = async (req, res) => {
       Luggage.countDocuments(luggageQuery),
       Luggage.countDocuments({ ...luggageQuery, status: "CHECKED_IN" }),
       Luggage.countDocuments({ ...luggageQuery, status: "CHECKED_OUT" }),
+      // Meal stats
+      MealDistribution.countDocuments({ ...mealFilter, distributionDate: { $gte: yearStart, $lte: yearEnd } }),
+      MealDistribution.countDocuments({ ...mealFilter, status: "PENDING" }),
+      MealDistribution.countDocuments({ ...mealFilter, status: "SERVED", distributionDate: { $gte: yearStart, $lte: yearEnd } }),
     ]);
 
     // Lấy danh sách departments cho admin filter
@@ -137,6 +146,11 @@ export const getDepartmentStats = async (req, res) => {
         total: luggageTotal,
         checkedIn: luggageIn,
         checkedOut: luggageOut,
+      },
+      meal: {
+        total: mealTotal,
+        pending: mealPending,
+        served: mealServed,
       },
     });
   } catch (error) {
@@ -290,6 +304,27 @@ export const getDepartmentDetail = async (req, res) => {
           createdAt: r.createdAt,
         }));
       }
+    } else if (type === "meal") {
+      const filter = targetDepartment === "all" ? {} : { department: targetDepartment };
+      const data = await MealDistribution.find(filter)
+        .sort({ distributionDate: -1 })
+        .limit(limit)
+        .populate("employee", "displayName idCompanny department")
+        .populate("meal", "name category price");
+      const MEAL_TIMES = { BREAKFAST: "Bữa sáng", LUNCH: "Bữa trưa", DINNER: "Bữa tối" };
+      const formatPrice = (p) => new Intl.NumberFormat("vi-VN").format(p || 0) + "đ";
+      records = data.map((r) => ({
+        _id: r._id,
+        col1: r.employee?.displayName || r.employee?.idCompanny || "N/A",
+        col2: r.employee?.department || "-",
+        col3: r.meal?.name || "N/A",
+        col4: MEAL_TIMES[r.mealTime] || r.mealTime,
+        col5: `${r.quantity} suất`,
+        col6: formatPrice(r.totalPrice),
+        status: r.status,
+        statusLabel: { PENDING: "Chờ XN", CONFIRMED: "Đã XN", SERVED: "Đã phát", CANCELLED: "Đã hủy" }[r.status] || r.status,
+        createdAt: r.distributionDate || r.createdAt,
+      }));
     } else {
       return res.status(400).json({ message: "Loại không hợp lệ" });
     }
@@ -300,6 +335,7 @@ export const getDepartmentDetail = async (req, res) => {
       overtime: ["Nhân viên", "Bộ phận", "Ngày OT", "Kế hoạch", "Thực tế", "Lý do"],
       visits: ["Mã yêu cầu", "Người tạo", "Khách", "Mục đích", "Khu vực", "Host"],
       luggage: ["Mã yêu cầu", "Khách", "Tên đồ", "Loại", "Số lượng", "Mô tả"],
+      meal: ["Nhân viên", "Phòng ban", "Suất ăn", "Bữa", "Số lượng", "Tổng tiền"],
     };
 
     return res.status(200).json({ headers: headers[type], records });

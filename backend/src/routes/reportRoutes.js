@@ -17,6 +17,10 @@ import {
   getLuggageDailyReport,
   getLuggageIssuesReport,
   exportLuggageReport,
+  getMealRealtimeReport,
+  getMealDailyReport,
+  getMealPendingReport,
+  exportMealReport,
 } from "../controllers/reportController.js";
 
 const router = express.Router();
@@ -59,5 +63,11 @@ router.get(
 router.get("/luggage/daily", verifyToken, isModerator, getLuggageDailyReport);
 router.get("/luggage/issues", verifyToken, isModerator, getLuggageIssuesReport);
 router.get("/luggage/export", verifyToken, isModerator, exportLuggageReport);
+
+// Meal report endpoints
+router.get("/meal/realtime", verifyToken, isModerator, getMealRealtimeReport);
+router.get("/meal/daily", verifyToken, isModerator, getMealDailyReport);
+router.get("/meal/pending", verifyToken, isModerator, getMealPendingReport);
+router.get("/meal/export", verifyToken, isModerator, exportMealReport);
 
 export default router;

@@ -18,6 +18,7 @@ import {
   Filter,
   ChevronDown,
   RefreshCw,
+  UtensilsCrossed,
 } from "lucide-react";
 
 // Status badge style helper
@@ -110,6 +111,22 @@ const CARD_TYPES = [
       { label: "Đã trả", value: s.luggage.checkedOut, color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" },
     ],
     getTotal: (s) => s.luggage.total,
+    gridCols: "grid-cols-2",
+  },
+  {
+    type: "meal",
+    title: "Xuất ăn",
+    icon: UtensilsCrossed,
+    iconColor: "text-orange-600",
+    iconBg: "bg-orange-50",
+    totalColor: "text-orange-700",
+    activeRing: "ring-orange-400",
+    activeHeader: "bg-orange-600",
+    getItems: (s) => [
+      { label: "Chờ XN", value: s.meal?.pending ?? 0, color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200" },
+      { label: "Đã phát", value: s.meal?.served ?? 0, color: "text-green-700", bg: "bg-green-50", border: "border-green-200" },
+    ],
+    getTotal: (s) => s.meal?.total ?? 0,
     gridCols: "grid-cols-2",
   },
 ];

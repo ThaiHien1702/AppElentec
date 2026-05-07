@@ -219,6 +219,45 @@ export const API_PATHS = {
   // Dashboard stats
   DASHBOARD_STATS: `${BASE_URL}/dashboard/stats`,
   DASHBOARD_DETAIL: (type) => `${BASE_URL}/dashboard/detail/${type}`,
+
+  // Meal management endpoints - Catalog
+  MEALS_CATALOG: `${BASE_URL}/meals/catalog`,
+  MEALS_CATALOG_BY_ID: (id) => `${BASE_URL}/meals/catalog/${id}`,
+
+  // Meal management endpoints - Distributions
+  MEALS_DISTRIBUTIONS: `${BASE_URL}/meals/distributions`,
+  MEALS_DISTRIBUTIONS_MY: `${BASE_URL}/meals/distributions/my`,
+  MEALS_DISTRIBUTIONS_ALL: `${BASE_URL}/meals/distributions/all`,
+  MEALS_DISTRIBUTIONS_STATS: `${BASE_URL}/meals/distributions/stats`,
+  MEALS_DISTRIBUTIONS_EXPORT: (status, from, to, department) => {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    if (department) params.append("department", department);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/meals/distributions/export?${query}`
+      : `${BASE_URL}/meals/distributions/export`;
+  },
+  MEALS_DISTRIBUTION_BY_ID: (id) => `${BASE_URL}/meals/distributions/${id}`,
+  MEALS_DISTRIBUTION_CONFIRM: (id) => `${BASE_URL}/meals/distributions/${id}/confirm`,
+  MEALS_DISTRIBUTION_SERVE: (id) => `${BASE_URL}/meals/distributions/${id}/serve`,
+  MEALS_DISTRIBUTION_CANCEL: (id) => `${BASE_URL}/meals/distributions/${id}/cancel`,
+
+  // Meal report endpoints (via /api/reports/meal/*)
+  MEAL_REPORT_REALTIME: `${BASE_URL}/reports/meal/realtime`,
+  MEAL_REPORT_DAILY: `${BASE_URL}/reports/meal/daily`,
+  MEAL_REPORT_PENDING: `${BASE_URL}/reports/meal/pending`,
+  MEAL_REPORT_EXPORT: (from, to) => {
+    const params = new URLSearchParams();
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    const query = params.toString();
+    return query
+      ? `${BASE_URL}/reports/meal/export?${query}`
+      : `${BASE_URL}/reports/meal/export`;
+  },
 };
 
 export default API_PATHS;

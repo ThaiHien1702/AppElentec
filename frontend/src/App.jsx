@@ -29,6 +29,10 @@ import LeaveReportPage from "./pages/LeaveManagement/LeaveReportPage";
 import OvertimeManagement from "./pages/OvertimeManagement/OvertimeManagement";
 import OvertimeRegisterPage from "./pages/OvertimeManagement/OvertimeRegisterPage";
 import OvertimeReportPage from "./pages/OvertimeManagement/OvertimeReportPage";
+import MealManagement from "./pages/MealManagement/MealManagement";
+import MealRegisterPage from "./pages/MealManagement/MealRegisterPage";
+import MealCatalogPage from "./pages/MealManagement/MealCatalogPage";
+import MealReportPage from "./pages/MealManagement/MealReportPage";
 
 const App = () => {
   return (
@@ -139,6 +143,26 @@ const App = () => {
               element={
                 <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
                   <LuggageReportPage />
+                </RoleProtectedRoute>
+              }
+            />
+
+            {/* Meal Management routes */}
+            <Route path="meal" element={<MealManagement />} />
+            <Route path="meal/register" element={<MealRegisterPage />} />
+            <Route
+              path="meal/catalog"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <MealCatalogPage />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="meal/reports"
+              element={
+                <RoleProtectedRoute allowedRoles={["moderator", "admin"]}>
+                  <MealReportPage />
                 </RoleProtectedRoute>
               }
             />

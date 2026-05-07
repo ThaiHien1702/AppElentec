@@ -3,6 +3,7 @@ import Leave from "../models/Leave.js";
 import Overtime from "../models/Overtime.js";
 import Luggage from "../models/Luggage.js";
 import User from "../models/User.js";
+import MealDistribution from "../models/MealDistribution.js";
 import XLSX from "xlsx";
 
 // Vai trò được phép xem báo cáo vận hành cổng.
@@ -1193,3 +1194,164 @@ export const exportLuggageReport = async (req, res) => {
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
+
+// ==================== MEAL REPORTS ====================
+
+// Meal Report: realtime stats
+export const getMealRealtimeReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const todayEnd = endOfDay(now);
+
+    const [totalToday, pending, confirmed, served, cancelled, latestActivities] =
+      await Promise.all([
+        MealDistribution.countDocuments({ distributionDate: { $gte: todayStart, $lte: todayEnd } }),
+        MealDistribution.countDocuments({ status: "PENDING" }),
+        MealDistribution.countDocuments({ status: "CONFIRMED" }),
+        MealDistribution.countDocuments({ status: "SERVED" }),
+        MealDistribution.countDocuments({ status: "CANCELLED" }),
+        MealDistribution.find()
+          .sort({ updatedAt: -1 })
+          .limit(10)
+          .populate("employee", "displayName department")
+          .populate("meal", "name category price")
+          .select("employee meal mealTime quantity totalPrice status distributionDate updatedAt"),
+      ]);
+
+    return res.status(200).json({
+      generatedAt: now,
+      summary: { totalToday, pending, confirmed, served, cancelled },
+      latestActivities,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo realtime xuất ăn", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Meal Report: daily breakdown
+export const getMealDailyReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const from = req.query.from
+      ? startOfDay(new Date(req.query.from))
+      : startOfDay(new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000));
+    const to = req.query.to ? endOfDay(new Date(req.query.to)) : endOfDay(now);
+
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      return res.status(400).json({ message: "Tham số ngày không hợp lệ" });
+    }
+
+    const grouped = await MealDistribution.aggregate([
+      { $match: { distributionDate: { $gte: from, $lte: to } } },
+      { $project: { day: { $dateToString: { format: "%Y-%m-%d", date: "$distributionDate" } }, status: 1, quantity: 1, totalPrice: 1 } },
+      { $group: { _id: { day: "$day", status: "$status" }, count: { $sum: 1 }, quantity: { $sum: "$quantity" }, cost: { $sum: "$totalPrice" } } },
+      { $sort: { "_id.day": 1 } },
+    ]);
+
+    const dayMap = new Map();
+    for (const row of grouped) {
+      const day = row._id.day;
+      if (!dayMap.has(day)) {
+        dayMap.set(day, { day, total: 0, totalQuantity: 0, totalCost: 0, PENDING: 0, CONFIRMED: 0, SERVED: 0, CANCELLED: 0 });
+      }
+      const item = dayMap.get(day);
+      item[row._id.status] = row.count;
+      item.total += row.count;
+      item.totalQuantity += row.quantity;
+      item.totalCost += row.cost;
+    }
+
+    return res.status(200).json({ from, to, totalDays: dayMap.size, data: Array.from(dayMap.values()) });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo ngày xuất ăn", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Meal Report: pending confirmations
+export const getMealPendingReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const rows = await MealDistribution.find({ status: "PENDING" })
+      .sort({ distributionDate: 1 })
+      .populate("employee", "displayName idCompanny department")
+      .populate("meal", "name category price")
+      .select("employee meal mealTime quantity totalPrice distributionDate status createdAt");
+
+    const data = rows.map((item) => ({
+      _id: item._id,
+      employee: item.employee,
+      meal: item.meal,
+      mealTime: item.mealTime,
+      quantity: item.quantity,
+      totalPrice: item.totalPrice,
+      distributionDate: item.distributionDate,
+      status: item.status,
+      createdAt: item.createdAt,
+      daysPending: Math.floor((now - new Date(item.createdAt)) / (24 * 60 * 60 * 1000)),
+    }));
+
+    return res.status(200).json({ generatedAt: now, total: data.length, data });
+  } catch (error) {
+    console.error("Lỗi khi lấy báo cáo xuất ăn chờ xác nhận", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Meal Report: export Excel
+export const exportMealReport = async (req, res) => {
+  try {
+    if (!ensureReportRole(req, res)) return;
+
+    const now = new Date();
+    const from = req.query.from
+      ? startOfDay(new Date(req.query.from))
+      : startOfDay(new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000));
+    const to = req.query.to ? endOfDay(new Date(req.query.to)) : endOfDay(now);
+
+    const MEAL_TIMES = { BREAKFAST: "Bữa sáng", LUNCH: "Bữa trưa", DINNER: "Bữa tối" };
+
+    const items = await MealDistribution.find({ distributionDate: { $gte: from, $lte: to } })
+      .sort({ distributionDate: -1 })
+      .populate("employee", "displayName idCompanny department")
+      .populate("meal", "name category price")
+      .populate("confirmedBy", "displayName");
+
+    const rows = items.map((item) => ({
+      "Mã NV": item.employee?.idCompanny || "",
+      "Tên NV": item.employee?.displayName || "",
+      "Phòng ban": item.employee?.department || "",
+      "Suất ăn": item.meal?.name || "",
+      "Danh mục": item.meal?.category || "",
+      "Bữa": MEAL_TIMES[item.mealTime] || item.mealTime,
+      "Số lượng": item.quantity,
+      "Đơn giá": item.meal?.price || 0,
+      "Tổng tiền": item.totalPrice || 0,
+      "Ngày xuất": item.distributionDate ? new Date(item.distributionDate).toLocaleDateString("vi-VN") : "",
+      "Trạng thái": item.status,
+      "Xác nhận bởi": item.confirmedBy?.displayName || "",
+    }));
+
+    const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "MealReport");
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename="meal-report-${stamp}.xlsx"`);
+    return res.status(200).send(buffer);
+  } catch (error) {
+    console.error("Lỗi khi export báo cáo xuất ăn", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+

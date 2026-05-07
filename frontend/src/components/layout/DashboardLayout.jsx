@@ -18,6 +18,7 @@ import {
   Clock,
   Menu,
   X,
+  UtensilsCrossed,
 } from "lucide-react";
 
 const DashboardLayout = ({ children }) => {
@@ -170,6 +171,35 @@ const DashboardLayout = ({ children }) => {
         {
           name: "Báo cáo giờ làm thêm",
           path: "/overtime/reports",
+          icon: BarChart3,
+          show: canAccessManagement,
+        },
+      ],
+    },
+    {
+      title: "Xuất Ăn",
+      items: [
+        {
+          name: "Quản lý xuất ăn",
+          path: "/meal",
+          icon: UtensilsCrossed,
+          show: true,
+        },
+        {
+          name: "Đăng ký xuất ăn",
+          path: "/meal/register",
+          icon: Plus,
+          show: false,
+        },
+        {
+          name: "Danh mục suất ăn",
+          path: "/meal/catalog",
+          icon: Package,
+          show: canAccessManagement,
+        },
+        {
+          name: "Báo cáo xuất ăn",
+          path: "/meal/reports",
           icon: BarChart3,
           show: canAccessManagement,
         },
