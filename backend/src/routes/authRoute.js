@@ -1,6 +1,11 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { signUp, signIn, signOut } from "../controllers/authController.js";
+import {
+  signUp,
+  signIn,
+  signOut,
+  refreshAccessToken,
+} from "../controllers/authController.js";
 import {
   assignRole,
   removeRole,
@@ -36,6 +41,7 @@ const authLimiter = rateLimit({
 //Public routes
 router.post("/signup", authLimiter, signUp);
 router.post("/signin", authLimiter, signIn);
+router.post("/refresh", refreshAccessToken);
 
 //Protected routes
 router.post("/signout", verifyToken, signOut);

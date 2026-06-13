@@ -71,14 +71,48 @@ export const updateUserPosition = async (req, res) => {
       });
     }
 
+    const isAdmin = req.userRole === "admin";
+    const actorLevel = getPositionLevel(req.userPosition);
+
     // Check authorization - only admin or manager can change positions
-    if (
-      req.userRole !== "admin" &&
-      getPositionLevel(req.userPosition) < POSITION_LEVELS.Manager
-    ) {
+    if (!isAdmin && actorLevel < POSITION_LEVELS.Manager) {
       return res.status(403).json({
         message: "Chỉ Manager trở lên mới có quyền thay đổi cấp bậc người dùng",
       });
+    }
+
+    // Load the target first so we can guard against privilege escalation.
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Anti-escalation rules for non-admins. Admin (top authority) is exempt.
+    if (!isAdmin) {
+      const targetCurrentLevel = getPositionLevel(targetUser.position);
+      const newLevel = getPositionLevel(position);
+
+      // Cannot change your own position.
+      if (String(targetUser._id) === String(req.userId)) {
+        return res.status(403).json({
+          message: "Bạn không thể tự thay đổi cấp bậc của chính mình",
+        });
+      }
+
+      // Cannot modify someone at the same level or above you.
+      if (targetCurrentLevel >= actorLevel) {
+        return res.status(403).json({
+          message:
+            "Bạn không thể thay đổi cấp bậc của người có cấp bậc bằng hoặc cao hơn bạn",
+        });
+      }
+
+      // Cannot grant a position at the same level or above your own.
+      if (newLevel >= actorLevel) {
+        return res.status(403).json({
+          message: "Bạn chỉ có thể gán cấp bậc thấp hơn cấp bậc của chính mình",
+        });
+      }
     }
 
     const user = await User.findByIdAndUpdate(
@@ -86,10 +120,6 @@ export const updateUserPosition = async (req, res) => {
       { position },
       { returnDocument: "after", runValidators: true },
     );
-
-    if (!user) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    }
 
     res.status(200).json({
       message: "Cập nhật cấp bậc thành công",

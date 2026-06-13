@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContextInstance";
-import axiosInstance from "../utils/axiosInstance";
+import axiosInstance, {
+  setAccessToken,
+  tryRefreshToken,
+} from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
 import toast from "react-hot-toast";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("accessToken"));
-  const [role, setRole] = useState(localStorage.getItem("userRole"));
+  // token chỉ giữ trong React state (memory), không lưu localStorage.
+  const [token, setToken] = useState(null);
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchCurrentUser = async () => {
@@ -19,23 +23,39 @@ export const AuthProvider = ({ children }) => {
         setRole(profile.role);
         localStorage.setItem("userRole", profile.role);
       }
+      return profile;
     } catch {
-      setUser({ token, role });
+      // Không tạo user giả khi lỗi — để trạng thái phản ánh đúng.
+      setUser(null);
+      return null;
     }
   };
 
-  // Kiểm tra xem người dùng đăng nhập khi người dùng mở
+  // Khi mở app: thử khôi phục phiên bằng refresh token trong cookie.
   useEffect(() => {
     const initializeAuth = async () => {
-      if (token && role) {
-        await fetchCurrentUser();
+      try {
+        const { token: newToken, role: newRole } = await tryRefreshToken();
+        if (newToken) {
+          setToken(newToken);
+          if (newRole) {
+            setRole(newRole);
+            localStorage.setItem("userRole", newRole);
+          }
+          await fetchCurrentUser();
+        }
+      } catch {
+        // Không có phiên hợp lệ -> ở trạng thái chưa đăng nhập.
+        setToken(null);
+        setRole(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, role]);
+  }, []);
 
   // Đăng ký
   const signup = async (userData) => {
@@ -56,11 +76,10 @@ export const AuthProvider = ({ children }) => {
       const response = await axiosInstance.post(API_PATHS.SIGNIN, credentials);
       const { accessToken, role: userRole } = response.data;
 
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("userRole", userRole);
-
+      setAccessToken(accessToken);
       setToken(accessToken);
       setRole(userRole);
+      localStorage.setItem("userRole", userRole);
       await fetchCurrentUser();
 
       toast.success("Đăng nhập thành công!");
@@ -79,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("accessToken");
+      setAccessToken(null);
       localStorage.removeItem("userRole");
       setToken(null);
       setRole(null);

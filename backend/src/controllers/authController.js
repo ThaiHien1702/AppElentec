@@ -6,12 +6,31 @@ import Session from "../models/session.js";
 
 const ACCESS_TOKEN_TTL = "90m";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000;
+const REFRESH_COOKIE_NAME = "refreshToken";
 const ALLOWED_POSITIONS = [
   "Manager",
   "Assistant Manager",
   "Supervisor",
   "Staff",
 ];
+
+// Cookie options for the refresh token. `sameSite: "none"` requires
+// `secure: true`, so over plain HTTP (e.g. local dev without certs) we fall
+// back to lax/insecure instead of silently dropping the cookie.
+const getRefreshCookieOptions = () => {
+  const useHttps = process.env.USE_HTTPS === "true";
+  return {
+    httpOnly: true,
+    secure: useHttps,
+    sameSite: useHttps ? "none" : "lax",
+    maxAge: REFRESH_TOKEN_TTL,
+  };
+};
+
+const signAccessToken = (user) =>
+  jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_TTL,
+  });
 
 export const signUp = async (req, res) => {
   try {
@@ -119,13 +138,7 @@ export const signIn = async (req, res) => {
         .status(401)
         .json({ message: "idCompanny hoặc password không đúng" });
     }
-    const accessToken = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: ACCESS_TOKEN_TTL,
-      },
-    );
+    const accessToken = signAccessToken(user);
     //tạo refresh token
     const refreshToken = crypto.randomBytes(64).toString("hex");
     //tạo session để lưu refesh token
@@ -135,12 +148,7 @@ export const signIn = async (req, res) => {
       expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
     });
     //trả refresh token về trong cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none", //backend, frontend deploy riêng
-      maxAge: REFRESH_TOKEN_TTL,
-    });
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions());
     //trả accedd token về res
     return res.status(200).json({
       message: `User ${user.displayName} đã logged in!`,
@@ -156,17 +164,64 @@ export const signIn = async (req, res) => {
 export const signOut = async (req, res) => {
   try {
     //lấy token từ cookie
-    const token = req.cookies?.refreshToken;
-    if (!token) {
-      return res.status(400).json({ message: "Token không tồn tại" });
+    const token = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (token) {
+      //xóa session
+      await Session.deleteOne({ refreshToken: token });
     }
-    //xóa session
-    await Session.deleteOne({ refreshToken: token });
-    //xóa cookie
-    res.clearCookie("refreshToken");
+    //xóa cookie (options phải khớp với lúc set để xóa được)
+    res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
     return res.status(200).json({ message: "Đã logout thành công" });
   } catch (error) {
     console.error("Lỗi khi gọi signOut", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// Cấp lại access token mới từ refresh token trong cookie (kèm xoay refresh token)
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const token = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (!token) {
+      return res.status(401).json({ message: "Không có refresh token" });
+    }
+
+    const session = await Session.findOne({ refreshToken: token });
+
+    // Token không tồn tại hoặc đã hết hạn -> dọn dẹp và từ chối
+    if (!session || session.expiresAt < new Date()) {
+      if (session) {
+        await Session.deleteOne({ _id: session._id });
+      }
+      res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
+      return res
+        .status(401)
+        .json({ message: "Refresh token không hợp lệ hoặc đã hết hạn" });
+    }
+
+    const user = await User.findById(session.userId);
+    if (!user) {
+      await Session.deleteOne({ _id: session._id });
+      res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
+      return res.status(401).json({ message: "Người dùng không còn tồn tại" });
+    }
+
+    // Xoay refresh token: nếu token bị lộ thì lần dùng sau sẽ vô hiệu.
+    const newRefreshToken = crypto.randomBytes(64).toString("hex");
+    session.refreshToken = newRefreshToken;
+    session.expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL);
+    await session.save();
+
+    res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, getRefreshCookieOptions());
+
+    const accessToken = signAccessToken(user);
+    return res.status(200).json({
+      message: "Làm mới token thành công",
+      accessToken,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Lỗi khi gọi refreshAccessToken", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

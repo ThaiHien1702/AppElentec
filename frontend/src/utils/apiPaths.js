@@ -8,6 +8,7 @@ export const API_PATHS = {
   SIGNUP: `${BASE_URL}/auth/signup`,
   SIGNIN: `${BASE_URL}/auth/signin`,
   SIGNOUT: `${BASE_URL}/auth/signout`,
+  REFRESH: `${BASE_URL}/auth/refresh`,
 
   // Các điểm cuối hồ sơ
   GET_PROFILE: `${BASE_URL}/auth/profile`,
