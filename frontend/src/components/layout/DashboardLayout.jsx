@@ -289,7 +289,7 @@ const DashboardLayout = ({ children }) => {
       {/* Nội dung chính */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* Thanh trên cùng (Header) */}
-        <header className="  hidden bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
+        <header className="flex flex-col bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200 md:hidden">
           <div className="flex items-center justify-between px-4 md:px-6 py-4">
             <div className="flex items-center gap-4">
               {/* Nút Hamburger (chỉ hiện trên Mobile) */}

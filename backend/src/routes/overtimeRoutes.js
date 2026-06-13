@@ -1,5 +1,5 @@
 import express from "express";
-import multer from "multer";
+import { uploadExcel } from "../utils/uploadExcel.js";
 import {
   createOvertimeRequest,
   getMyOvertimeRequests,
@@ -18,7 +18,6 @@ import {
 import { verifyToken, isModerator } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 // Tất cả routes đều cần xác thực
 router.use(verifyToken);
@@ -34,7 +33,7 @@ router.get("/excel/template", downloadOvertimeTemplateExcel); // Download templa
 router.post(
   "/excel/import",
   isModerator,
-  upload.single("file"),
+  uploadExcel.single("file"),
   importOvertimeFromExcel,
 ); // Import từ Excel
 

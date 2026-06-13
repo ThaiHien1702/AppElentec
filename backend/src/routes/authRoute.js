@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import { signUp, signIn, signOut } from "../controllers/authController.js";
 import {
   assignRole,
@@ -22,15 +23,25 @@ import {
 
 const router = express.Router();
 
+// Rate limiter for sensitive auth endpoints — throttles brute-force login
+// attempts and signup abuse (per IP).
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Quá nhiều yêu cầu. Vui lòng thử lại sau ít phút." },
+});
+
 //Public routes
-router.post("/signup", signUp);
-router.post("/signin", signIn);
+router.post("/signup", authLimiter, signUp);
+router.post("/signin", authLimiter, signIn);
 
 //Protected routes
 router.post("/signout", verifyToken, signOut);
 router.get("/profile", verifyToken, getProfile);
 router.put("/profile", verifyToken, updateProfile);
-router.post("/change-password", verifyToken, changePassword);
+router.post("/change-password", authLimiter, verifyToken, changePassword);
 
 //Moderator routes (moderator, admin)
 router.get("/moderator/users", verifyToken, isModerator, getAllUsers);

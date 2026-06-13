@@ -19,14 +19,16 @@ export const verifyToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
-    req.userRole = decoded.role;
 
-    // Fetch position from database
+    // Fetch the user from the database so role/position reflect the CURRENT
+    // state. Reading role from the token payload would let a demoted or
+    // disabled account keep its old privileges until the token expires.
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({ message: "Người dùng không còn tồn tại" });
     }
 
+    req.userRole = user.role;
     req.userPosition = user.position;
     req.userDepartment = user.department;
     req.positionLevel = POSITION_LEVELS[user.position] || 0;

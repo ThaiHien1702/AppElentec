@@ -13,10 +13,9 @@ import {
 } from "../controllers/computerController.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
 import User from "../models/User.js";
-import multer from "multer";
+import { uploadExcel } from "../utils/uploadExcel.js";
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 const isAdminOrIT = async (req, res, next) => {
   try {
@@ -65,7 +64,7 @@ router.get("/template", downloadComputersTemplateExcel);
 router.post(
   "/import",
   isAdminOrIT,
-  upload.single("file"),
+  uploadExcel.single("file"),
   importComputersFromExcel,
 );
 

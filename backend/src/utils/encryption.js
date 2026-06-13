@@ -1,87 +1,81 @@
 import crypto from "crypto";
 
 // Encryption settings
-const ALGORITHM = "aes-256-cbc";
-const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || "your-32-character-secret-key!!"; // Must be 32 characters
-const IV_LENGTH = 16; // For AES, this is always 16
+// AES-256-GCM is authenticated encryption: it both encrypts and detects
+// tampering (via the auth tag), unlike CBC which has no integrity check.
+const ALGORITHM = "aes-256-gcm";
+const IV_LENGTH = 16; // bytes
 
-if (!process.env.ENCRYPTION_KEY) {
-  console.warn(
-    "[Security] WARNING: ENCRYPTION_KEY not set in environment. Using default fallback key. Set ENCRYPTION_KEY in backend/.env for production!",
-  );
-}
+// The key is resolved lazily (on first use) instead of at module load.
+// server.js calls dotenv.config() inside its body, which runs AFTER the
+// ES-module imports are evaluated, so reading process.env at the top level
+// here would always see `undefined`. Resolving on first encrypt/decrypt call
+// guarantees the env is loaded. The derived key is cached after the first call.
+let cachedKey = null;
+
+const getKey = () => {
+  if (cachedKey) return cachedKey;
+
+  const secret = process.env.ENCRYPTION_KEY;
+  if (!secret) {
+    throw new Error(
+      "[Security] ENCRYPTION_KEY is not set. Add a strong ENCRYPTION_KEY to backend/.env before encrypting/decrypting data.",
+    );
+  }
+
+  // Derive a fixed 32-byte key regardless of the secret's length.
+  cachedKey = crypto.createHash("sha256").update(String(secret)).digest();
+  return cachedKey;
+};
 
 /**
  * Encrypt text (Product Keys, License Keys)
  * @param {string} text - Plain text to encrypt
- * @returns {string} - Encrypted text in format: iv:encryptedData
+ * @returns {string} - Encrypted text in format: iv:authTag:encryptedData (hex)
+ * @throws if encryption fails (never returns plaintext on error)
  */
 export const encrypt = (text) => {
   if (!text) return "";
 
-  try {
-    // Create initialization vector
-    const iv = crypto.randomBytes(IV_LENGTH);
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, getKey(), iv);
 
-    // Ensure encryption key is 32 bytes
-    const key = crypto
-      .createHash("sha256")
-      .update(String(ENCRYPTION_KEY))
-      .digest();
+  let encrypted = cipher.update(String(text), "utf8", "hex");
+  encrypted += cipher.final("hex");
 
-    // Create cipher
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+  const authTag = cipher.getAuthTag().toString("hex");
 
-    // Encrypt
-    let encrypted = cipher.update(text, "utf8", "hex");
-    encrypted += cipher.final("hex");
-
-    // Return iv + encrypted data (separated by :)
-    return iv.toString("hex") + ":" + encrypted;
-  } catch (error) {
-    console.error("Encryption error:", error);
-    return text; // Return original if encryption fails
-  }
+  return `${iv.toString("hex")}:${authTag}:${encrypted}`;
 };
 
 /**
  * Decrypt text (Product Keys, License Keys)
- * @param {string} text - Encrypted text in format: iv:encryptedData
+ * @param {string} text - Encrypted text in format: iv:authTag:encryptedData
  * @returns {string} - Decrypted plain text
+ * @throws if the value is malformed, tampered with, or the key is wrong
+ *         (never returns the raw ciphertext on error)
  */
 export const decrypt = (text) => {
   if (!text) return "";
 
-  try {
-    // Split iv and encrypted data
-    const parts = text.split(":");
-    if (parts.length !== 2) {
-      // Not encrypted format, return as is
-      return text;
-    }
-
-    const iv = Buffer.from(parts[0], "hex");
-    const encryptedText = parts[1];
-
-    // Ensure encryption key is 32 bytes
-    const key = crypto
-      .createHash("sha256")
-      .update(String(ENCRYPTION_KEY))
-      .digest();
-
-    // Create decipher
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-
-    // Decrypt
-    let decrypted = decipher.update(encryptedText, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-
-    return decrypted;
-  } catch (error) {
-    console.error("Decryption error:", error);
-    return text; // Return original if decryption fails
+  const parts = String(text).split(":");
+  if (parts.length !== 3) {
+    throw new Error(
+      "Invalid encrypted value format (expected iv:authTag:data).",
+    );
   }
+
+  const [ivHex, authTagHex, encryptedText] = parts;
+  const iv = Buffer.from(ivHex, "hex");
+  const authTag = Buffer.from(authTagHex, "hex");
+
+  const decipher = crypto.createDecipheriv(ALGORITHM, getKey(), iv);
+  decipher.setAuthTag(authTag);
+
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+
+  return decrypted;
 };
 
 /**
@@ -129,6 +123,21 @@ export const encryptComputerKeys = (computerData) => {
 };
 
 /**
+ * Safely decrypt a single field. A single corrupt/tampered record must not
+ * take down a whole list endpoint, so failures degrade to a clear marker
+ * instead of throwing (and never leak the raw ciphertext to the client).
+ */
+const safeDecryptField = (value, maskKeys) => {
+  try {
+    const decrypted = decrypt(value);
+    return maskKeys ? maskKey(decrypted) : decrypted;
+  } catch (error) {
+    console.error("[Security] Failed to decrypt field:", error.message);
+    return "[decrypt error]";
+  }
+};
+
+/**
  * Decrypt product keys in computer data after retrieving from database
  * @param {Object} computerData - Computer data object with encrypted keys
  * @param {boolean} maskKeys - Whether to mask keys (for listing views)
@@ -139,24 +148,21 @@ export const decryptComputerKeys = (computerData, maskKeys = false) => {
 
   // Decrypt OS key
   if (data.osKey) {
-    const decrypted = decrypt(data.osKey);
-    data.osKey = maskKeys ? maskKey(decrypted) : decrypted;
+    data.osKey = safeDecryptField(data.osKey, maskKeys);
   }
 
   // Decrypt Office key
   if (data.officeKey) {
-    const decrypted = decrypt(data.officeKey);
-    data.officeKey = maskKeys ? maskKey(decrypted) : decrypted;
+    data.officeKey = safeDecryptField(data.officeKey, maskKeys);
   }
 
   // Decrypt software keys
   if (data.installedSoftware && Array.isArray(data.installedSoftware)) {
     data.installedSoftware = data.installedSoftware.map((sw) => {
       if (sw.key) {
-        const decrypted = decrypt(sw.key);
         return {
           ...sw,
-          key: maskKeys ? maskKey(decrypted) : decrypted,
+          key: safeDecryptField(sw.key, maskKeys),
         };
       }
       return sw;
