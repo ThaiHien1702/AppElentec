@@ -35,9 +35,9 @@ const signAccessToken = (user) =>
 export const signUp = async (req, res) => {
   try {
     // lấy input
-    const { idCompanny, password, email, displayName, role, position } =
+    const { idCompany, password, email, displayName, role, position } =
       req.body;
-    const normalizedIdCompanny = idCompanny?.trim().toLowerCase();
+    const normalizedIdCompanny = idCompany?.trim().toLowerCase();
     const normalizedEmail = email?.trim()
       ? email.trim().toLowerCase()
       : undefined;
@@ -46,7 +46,7 @@ export const signUp = async (req, res) => {
     // check xem có dữ liệu không
     if (!normalizedIdCompanny || !password || !displayName) {
       return res.status(400).json({
-        message: "Không thể thiếu idCompanny, password, displayName ",
+        message: "Không thể thiếu idCompany, password, displayName ",
       });
     }
 
@@ -57,16 +57,16 @@ export const signUp = async (req, res) => {
       });
     }
 
-    // kiểm tra idCompanny tồn tại chưa
+    // kiểm tra idCompany tồn tại chưa
     const duplicate = await User.findOne({
       $or: [
-        { idCompanny: normalizedIdCompanny },
+        { idCompany: normalizedIdCompanny },
         { username: normalizedIdCompanny },
       ],
     });
 
     if (duplicate) {
-      return res.status(409).json({ message: "idCompanny đã tồn tại" });
+      return res.status(409).json({ message: "idCompany đã tồn tại" });
     }
 
     // mã hoá password
@@ -75,7 +75,7 @@ export const signUp = async (req, res) => {
     // tạo user mới - chỉ admin mới được truyền role/position
     const isAdminRequest = req.userRole === "admin";
     const createPayload = {
-      idCompanny: normalizedIdCompanny,
+      idCompany: normalizedIdCompanny,
       hashedPassword,
       displayName,
       role: isAdminRequest && role ? role : "user",
@@ -95,8 +95,8 @@ export const signUp = async (req, res) => {
     return res.sendStatus(204);
   } catch (error) {
     if (error?.code === 11000) {
-      if (error?.keyPattern?.idCompanny) {
-        return res.status(409).json({ message: "idCompanny đã tồn tại" });
+      if (error?.keyPattern?.idCompany) {
+        return res.status(409).json({ message: "idCompany đã tồn tại" });
       }
       if (error?.keyPattern?.email) {
         return res.status(409).json({ message: "Email đã tồn tại" });
@@ -111,18 +111,18 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     // lấy input
-    const { idCompanny, password } = req.body;
-    const normalizedIdCompanny = idCompanny?.trim().toLowerCase();
+    const { idCompany, password } = req.body;
+    const normalizedIdCompanny = idCompany?.trim().toLowerCase();
 
     if (!normalizedIdCompanny || !password) {
       return res
         .status(400)
-        .json({ message: "idCompanny và password không có dữ liệu" });
+        .json({ message: "idCompany và password không có dữ liệu" });
     }
     // lấy dữ liệu user trong db
     const user = await User.findOne({
       $or: [
-        { idCompanny: normalizedIdCompanny },
+        { idCompany: normalizedIdCompanny },
         { username: normalizedIdCompanny },
       ],
     });
@@ -130,13 +130,13 @@ export const signIn = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ message: "idCompanny hoặc password không đúng" });
+        .json({ message: "idCompany hoặc password không đúng" });
     }
-    const passwordCorrect = await bcrypt.compare(password, user.hashedPassword); // ❌ CRASH
+    const passwordCorrect = await bcrypt.compare(password, user.hashedPassword);
     if (!passwordCorrect) {
       return res
         .status(401)
-        .json({ message: "idCompanny hoặc password không đúng" });
+        .json({ message: "idCompany hoặc password không đúng" });
     }
     const accessToken = signAccessToken(user);
     //tạo refresh token

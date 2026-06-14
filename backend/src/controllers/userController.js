@@ -1,5 +1,9 @@
 import User from "../models/User.js";
 
+// Escape các ký tự đặc biệt của regex để giá trị người dùng nhập được coi như
+// chuỗi thường (tránh ReDoS và truy vấn regex ngoài ý muốn).
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Lấy danh sách tất cả users
 export const getAllUsers = async (req, res) => {
   try {
@@ -30,7 +34,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Tìm kiếm users theo tên hoặc idCompanny
+// Tìm kiếm users theo tên hoặc idCompany
 export const searchUsers = async (req, res) => {
   try {
     const { q } = req.query;
@@ -41,11 +45,12 @@ export const searchUsers = async (req, res) => {
         .json({ message: "Vui lòng cung cấp query tìm kiếm" });
     }
 
+    const safeQ = escapeRegex(q);
     const users = await User.find({
       $or: [
-        { displayName: { $regex: q, $options: "i" } },
-        { idCompanny: { $regex: q, $options: "i" } },
-        { email: { $regex: q, $options: "i" } },
+        { displayName: { $regex: safeQ, $options: "i" } },
+        { idCompany: { $regex: safeQ, $options: "i" } },
+        { email: { $regex: safeQ, $options: "i" } },
       ],
     })
       .select("-hashedPassword")

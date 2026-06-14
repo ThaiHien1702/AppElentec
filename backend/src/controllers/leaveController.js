@@ -10,9 +10,27 @@ export const createLeaveRequest = async (req, res) => {
     const { leaveType, startDate, endDate, reason, notes } = req.body;
     const userId = req.userId; // Từ verifyToken middleware
 
-    // Tính số ngày nghỉ
+    // Validate ngày trước khi tính toán
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu ngày bắt đầu hoặc ngày kết thúc" });
+    }
+
     const start = new Date(startDate);
     const end = new Date(endDate);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Ngày không hợp lệ" });
+    }
+
+    if (end < start) {
+      return res
+        .status(400)
+        .json({ message: "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu" });
+    }
+
+    // Tính số ngày nghỉ
     const diffTime = Math.abs(end - start);
     const daysCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 vì bao gồm cả ngày đầu và cuối
 
@@ -365,7 +383,7 @@ export const exportLeaveToExcel = async (req, res) => {
     if (status) query.status = status;
 
     const leaveRequests = await Leave.find(query)
-      .populate("user", "displayName email idCompanny department position")
+      .populate("user", "displayName email idCompany department position")
       .populate("approvedBy", "displayName")
       .sort({ createdAt: -1 })
       .lean();
@@ -380,7 +398,7 @@ export const exportLeaveToExcel = async (req, res) => {
 
     const rows = leaveRequests.map((item, index) => ({
       "No.": index + 1,
-      "Mã nhân viên": item.user?.idCompanny || "",
+      "Mã nhân viên": item.user?.idCompany || "",
       "Tên nhân viên": item.user?.displayName || "",
       Email: item.user?.email || "",
       "Phòng ban": item.user?.department || "",
@@ -661,7 +679,7 @@ export const importLeaveFromExcel = async (req, res) => {
         }
 
         // Find user by employee ID
-        const user = await User.findOne({ idCompanny: empNo });
+        const user = await User.findOne({ idCompany: empNo });
         if (!user) {
           errorCount++;
           results.push({
