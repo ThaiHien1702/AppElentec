@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { handleApiError } from "../../utils/apiHandler";
@@ -44,7 +44,7 @@ const LuggagePage = () => {
     limit: 20,
   });
 
-  const fetchLuggage = async () => {
+  const fetchLuggage = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
@@ -62,14 +62,13 @@ const LuggagePage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     if (activeTab === "list") {
       fetchLuggage();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, activeTab, refreshCount]);
+  }, [fetchLuggage, activeTab, refreshCount]);
 
   return (
     <div className="space-y-6">

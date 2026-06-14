@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Plus, Edit2, Trash2, ChevronDown } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import axiosInstance from "../../utils/axiosInstance";
@@ -8,6 +8,28 @@ import { handleApiError, handleApiSuccess } from "../../utils/apiHandler";
 import { POSITIONS, ROLES } from "../../utils/constants";
 import { FormField, SelectField } from "../../components/ui/FormField";
 import { Modal } from "../../components/ui/Modal";
+
+// Hàm thuần (không phụ thuộc state) -> đặt ở module scope để giữ identity ổn định.
+const sortUsersByRolePriority = (usersList) => {
+  const rolePriority = {
+    admin: 0,
+    moderator: 1,
+    user: 2,
+  };
+
+  return [...usersList].sort((firstUser, secondUser) => {
+    const firstPriority = rolePriority[firstUser.role] ?? 99;
+    const secondPriority = rolePriority[secondUser.role] ?? 99;
+
+    if (firstPriority !== secondPriority) {
+      return firstPriority - secondPriority;
+    }
+
+    return (firstUser.displayName || "").localeCompare(
+      secondUser.displayName || "",
+    );
+  });
+};
 
 const AdminPanel = () => {
   const { isAdmin, role } = useAuth();
@@ -21,7 +43,7 @@ const AdminPanel = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const profileFormFields = {
-    idCompanny: "",
+    idCompany: "",
     displayName: "",
     email: "",
     department: "",
@@ -32,7 +54,7 @@ const AdminPanel = () => {
   };
 
   const newUserFields = {
-    idCompanny: "",
+    idCompany: "",
     password: "",
     email: "",
     displayName: "",
@@ -51,36 +73,10 @@ const AdminPanel = () => {
     reset: resetNewUserForm,
   } = useForm(newUserFields);
 
-  useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterRole, role]);
-
-  const sortUsersByRolePriority = (usersList) => {
-    const rolePriority = {
-      admin: 0,
-      moderator: 1,
-      user: 2,
-    };
-
-    return [...usersList].sort((firstUser, secondUser) => {
-      const firstPriority = rolePriority[firstUser.role] ?? 99;
-      const secondPriority = rolePriority[secondUser.role] ?? 99;
-
-      if (firstPriority !== secondPriority) {
-        return firstPriority - secondPriority;
-      }
-
-      return (firstUser.displayName || "").localeCompare(
-        secondUser.displayName || "",
-      );
-    });
-  };
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const isAdminUser = isAdmin();
+      const isAdminUser = role === "admin";
 
       let response;
       if (isAdminUser) {
@@ -105,7 +101,11 @@ const AdminPanel = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [role, filterRole]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleOpenProfileModal = async (userId) => {
     if (!isAdmin()) return;
@@ -117,7 +117,7 @@ const AdminPanel = () => {
       const user = response.data;
       setProfileUser(user);
       setProfileFields({
-        idCompanny: user.idCompanny || "",
+        idCompany: user.idCompany || "",
         displayName: user.displayName || "",
         email: user.email || "",
         department: user.department || "",
@@ -216,7 +216,7 @@ const AdminPanel = () => {
     if (!keyword) return true;
 
     return [
-      user.idCompanny,
+      user.idCompany,
       user.username,
       user.displayName,
       user.email,
@@ -334,7 +334,7 @@ const AdminPanel = () => {
                     onClick={() => handleRowClick(user._id)}
                   >
                     <td className="px-5 py-3.5 text-sm text-gray-900">
-                      {user.idCompanny || user.username || "-"}
+                      {user.idCompany || user.username || "-"}
                     </td>
                     <td className="px-5 py-3.5 text-sm font-medium text-gray-900">
                       {user.displayName || "-"}
@@ -464,8 +464,8 @@ const AdminPanel = () => {
         <form onSubmit={handleUpdateUserProfile} className="space-y-4">
           <FormField
             label="ID"
-            name="idCompanny"
-            value={profileFormData.idCompanny}
+            name="idCompany"
+            value={profileFormData.idCompany}
             onChange={handleProfileChange}
             required
           />
@@ -555,8 +555,8 @@ const AdminPanel = () => {
         <form onSubmit={handleCreateUser} className="space-y-4">
           <FormField
             label="ID"
-            name="idCompanny"
-            value={newUserData.idCompanny}
+            name="idCompany"
+            value={newUserData.idCompany}
             onChange={handleNewUserChange}
             placeholder="Nhập ID"
             required

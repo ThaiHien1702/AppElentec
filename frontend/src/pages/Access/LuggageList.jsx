@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import API_PATHS from "../../utils/apiPaths";
 import { handleApiError } from "../../utils/apiHandler";
@@ -31,7 +31,7 @@ const LuggageList = ({ visitId, refreshTrigger, onSelectLuggage }) => {
   const [luggage, setLuggage] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchLuggage = async () => {
+  const fetchLuggage = useCallback(async () => {
     if (!visitId) return;
 
     try {
@@ -47,12 +47,11 @@ const LuggageList = ({ visitId, refreshTrigger, onSelectLuggage }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [visitId]);
 
   useEffect(() => {
     fetchLuggage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visitId, refreshTrigger]);
+  }, [fetchLuggage, refreshTrigger]);
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
@@ -34,13 +34,13 @@ const ProfilePage = () => {
 
   const [profileData, setProfileData] = useState({
     _id: "",
-    idCompanny: "",
+    idCompany: "",
     email: "",
     displayName: "",
     department: "",
     position: "",
     phone: "",
-    avatrUrl: "",
+    avatarUrl: "",
     role: "",
     createdAt: "",
   });
@@ -51,7 +51,7 @@ const ProfilePage = () => {
     department: "",
     position: "",
     phone: "",
-    avatrUrl: "",
+    avatarUrl: "",
   };
 
   const passwordFields = {
@@ -72,7 +72,7 @@ const ProfilePage = () => {
     reset: resetPasswordForm,
   } = useForm(passwordFields);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(API_PATHS.GET_PROFILE);
@@ -83,19 +83,18 @@ const ProfilePage = () => {
         department: response.data.department || "",
         position: response.data.position || "",
         phone: response.data.phone || "",
-        avatrUrl: response.data.avatrUrl || "",
+        avatarUrl: response.data.avatarUrl || "",
       });
     } catch {
       handleApiError(new Error("Không thể tải thông tin profile"));
     } finally {
       setLoading(false);
     }
-  };
+  }, [setEditFormFields]);
 
   useEffect(() => {
     fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchProfile]);
 
   const handleEditClick = () => {
     setEditFormFields({
@@ -104,7 +103,7 @@ const ProfilePage = () => {
       department: profileData.department || "",
       position: profileData.position || "",
       phone: profileData.phone || "",
-      avatrUrl: profileData.avatrUrl || "",
+      avatarUrl: profileData.avatarUrl || "",
     });
     setIsEditMode(true);
   };
@@ -130,7 +129,7 @@ const ProfilePage = () => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setEditField("avatrUrl", reader.result);
+      setEditField("avatarUrl", reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -231,13 +230,13 @@ const ProfilePage = () => {
               <div className="relative">
                 <div className="w-32 h-32 rounded-full border-4 border-white bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
                   {(
-                    isEditMode ? editFormData.avatrUrl : profileData.avatrUrl
+                    isEditMode ? editFormData.avatarUrl : profileData.avatarUrl
                   ) ? (
                     <img
                       src={
                         isEditMode
-                          ? editFormData.avatrUrl
-                          : profileData.avatrUrl
+                          ? editFormData.avatarUrl
+                          : profileData.avatarUrl
                       }
                       alt="Avatar"
                       className="w-full h-full object-cover"
@@ -262,10 +261,10 @@ const ProfilePage = () => {
                     >
                       <Camera className="w-4 h-4" />
                     </button>
-                    {!!editFormData.avatrUrl && (
+                    {!!editFormData.avatarUrl && (
                       <button
                         type="button"
-                        onClick={() => setEditField("avatrUrl", "")}
+                        onClick={() => setEditField("avatarUrl", "")}
                         className="absolute bottom-0 left-0 bg-red-600 text-white p-2 rounded-full shadow-lg hover:bg-red-700 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -294,7 +293,7 @@ const ProfilePage = () => {
                   {profileData.displayName}
                 </h2>
                 <p className="text-gray-500 text-sm mb-3">
-                  {profileData.idCompanny || profileData.username}
+                  {profileData.idCompany || profileData.username}
                 </p>
                 <span
                   className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-md ${getRoleBadgeColor()}`}
