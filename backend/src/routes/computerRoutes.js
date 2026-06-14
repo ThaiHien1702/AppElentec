@@ -11,7 +11,7 @@ import {
   importComputersFromExcel,
   downloadComputersTemplateExcel,
 } from "../controllers/computerController.js";
-import { verifyToken } from "../middlewares/authMiddleware.js";
+import { verifyToken, requirePermission } from "../middlewares/authMiddleware.js";
 import User from "../models/User.js";
 import { uploadExcel } from "../utils/uploadExcel.js";
 
@@ -55,7 +55,11 @@ router.get("/stats/by-dept", getComputersStatsByDept);
 router.get("/search", searchComputers);
 
 // Export computers to excel
-router.get("/export", exportComputersToExcel);
+router.get(
+  "/export",
+  requirePermission("canExportData", "Bạn không có quyền xuất dữ liệu ra Excel"),
+  exportComputersToExcel,
+);
 
 // Download import template excel
 router.get("/template", downloadComputersTemplateExcel);
@@ -64,6 +68,7 @@ router.get("/template", downloadComputersTemplateExcel);
 router.post(
   "/import",
   isAdminOrIT,
+  requirePermission("canImportData", "Bạn không có quyền nhập dữ liệu từ Excel"),
   uploadExcel.single("file"),
   importComputersFromExcel,
 );
@@ -75,9 +80,19 @@ router.get("/:id", getComputerById);
 router.post("/", isAdminOrIT, createComputer);
 
 // Update computer (IT/Admin only)
-router.put("/:id", isAdminOrIT, updateComputer);
+router.put(
+  "/:id",
+  isAdminOrIT,
+  requirePermission("canEditAllComputers", "Bạn không có quyền chỉnh sửa máy tính"),
+  updateComputer,
+);
 
 // Delete computer (IT/Admin only)
-router.delete("/:id", isAdminOrIT, deleteComputer);
+router.delete(
+  "/:id",
+  isAdminOrIT,
+  requirePermission("canDeleteData", "Bạn không có quyền xóa máy tính"),
+  deleteComputer,
+);
 
 export default router;

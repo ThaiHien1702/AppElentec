@@ -1,7 +1,6 @@
 import ComputerInfo from "../models/ComputerInfo.js";
 import XLSX from "xlsx";
 import ExcelJS from "exceljs";
-import { hasPermission } from "../utils/positionHierarchy.js";
 import {
   encryptComputerKeys,
   decryptComputerKeys,
@@ -411,7 +410,7 @@ export const getAllComputers = async (req, res) => {
     const filter = buildComputerFilters({ department, status });
 
     const computers = await ComputerInfo.find(filter)
-      .populate("lastUpdatedBy", "displayName idCompanny")
+      .populate("lastUpdatedBy", "displayName idCompany")
       .sort({ createdAt: -1 });
 
     // Mask product keys for list view (security)
@@ -433,7 +432,7 @@ export const getComputerById = async (req, res) => {
 
     const computer = await ComputerInfo.findById(id).populate(
       "lastUpdatedBy",
-      "displayName idCompanny",
+      "displayName idCompany",
     );
 
     if (!computer) {
@@ -501,17 +500,7 @@ export const updateComputer = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Admin is always allowed; others are checked by position permissions.
-    const canEdit =
-      req.userRole === "admin" ||
-      hasPermission(req.userPosition, "canEditAllComputers");
-
-    // Check permission: must be able to edit computers
-    if (!canEdit) {
-      return res.status(403).json({
-        message: "Bạn không có quyền chỉnh sửa máy tính",
-      });
-    }
+    // Quyền chỉnh sửa được kiểm tra ở middleware requirePermission (route).
 
     // Encrypt product keys before updating
     const encryptedData = encryptComputerKeys(updateData);
@@ -522,7 +511,7 @@ export const updateComputer = async (req, res) => {
     const computer = await ComputerInfo.findByIdAndUpdate(id, encryptedData, {
       returnDocument: "after",
       runValidators: true,
-    }).populate("lastUpdatedBy", "displayName idCompanny");
+    }).populate("lastUpdatedBy", "displayName idCompany");
 
     if (!computer) {
       return res.status(404).json({ message: "Không tìm thấy máy tính" });
@@ -548,17 +537,7 @@ export const deleteComputer = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Admin is always allowed; others are checked by position permissions.
-    const canDelete =
-      req.userRole === "admin" ||
-      hasPermission(req.userPosition, "canDeleteData");
-
-    // Check permission: only managers can delete
-    if (!canDelete) {
-      return res.status(403).json({
-        message: "Bạn không có quyền xóa máy tính",
-      });
-    }
+    // Quyền xóa được kiểm tra ở middleware requirePermission (route).
 
     const computer = await ComputerInfo.findByIdAndDelete(id);
 
@@ -648,17 +627,7 @@ export const searchComputers = async (req, res) => {
 // Export computers to Excel
 export const exportComputersToExcel = async (req, res) => {
   try {
-    // Admin is always allowed; others are checked by position permissions.
-    const canExport =
-      req.userRole === "admin" ||
-      hasPermission(req.userPosition, "canExportData");
-
-    // Check permission: Supervisor and above can export
-    if (!canExport) {
-      return res.status(403).json({
-        message: "Bạn không có quyền xuất dữ liệu ra Excel",
-      });
-    }
+    // Quyền export được kiểm tra ở middleware requirePermission (route).
 
     const { department, status } = req.query;
     const filter = buildComputerFilters({ department, status });
@@ -959,17 +928,7 @@ export const downloadComputersTemplateExcel = async (_req, res) => {
 // Import computers from Excel
 export const importComputersFromExcel = async (req, res) => {
   try {
-    // Admin is always allowed; others are checked by position permissions.
-    const canImport =
-      req.userRole === "admin" ||
-      hasPermission(req.userPosition, "canImportData");
-
-    // Check permission: only Assistant Manager and above can import
-    if (!canImport) {
-      return res.status(403).json({
-        message: "Bạn không có quyền nhập dữ liệu từ Excel",
-      });
-    }
+    // Quyền import được kiểm tra ở middleware requirePermission (route).
 
     if (!req.file || !req.file.buffer) {
       return res
@@ -1056,7 +1015,7 @@ export const importComputersFromExcel = async (req, res) => {
         }
       } catch (error) {
         skippedCount += 1;
-        errors.push(`Dòng ${index + 2}: ${error.message}`);
+        errors.push(`Dòng ${index + firstDataRowNumber}: ${error.message}`);
       }
     }
 

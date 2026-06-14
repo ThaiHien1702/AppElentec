@@ -1,13 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-
-// Position hierarchy levels (higher number = higher authority)
-const POSITION_LEVELS = {
-  Manager: 4,
-  "Assistant Manager": 3,
-  Supervisor: 2,
-  Staff: 1,
-};
+// Single source of truth for position levels (avoid drift between files).
+import { POSITION_LEVELS, hasPermission } from "../utils/positionHierarchy.js";
 
 // Middleware kiểm tra user đã login
 export const verifyToken = async (req, res, next) => {
@@ -97,6 +91,21 @@ export const isSupervisor = (req, res, next) => {
   if (req.positionLevel < POSITION_LEVELS.Supervisor) {
     return res.status(403).json({
       message: "Chỉ Supervisor trở lên mới có quyền truy cập",
+    });
+  }
+  next();
+};
+
+// Middleware kiểm tra quyền theo position-permission. Admin luôn được phép;
+// các position khác phải có quyền tương ứng trong POSITION_PERMISSIONS.
+// Dùng để thay cho các kiểm tra lặp lại trong controller.
+export const requirePermission = (permission, message) => (req, res, next) => {
+  const allowed =
+    req.userRole === "admin" || hasPermission(req.userPosition, permission);
+
+  if (!allowed) {
+    return res.status(403).json({
+      message: message || "Bạn không có quyền thực hiện thao tác này",
     });
   }
   next();
