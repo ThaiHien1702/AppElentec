@@ -197,7 +197,7 @@ export const getDepartmentUsers = async (req, res) => {
     }
 
     const users = await User.find({ department: department.name })
-      .select("idCompanny displayName email position")
+      .select("idCompany displayName email position")
       .sort({ displayName: 1 });
 
     // Đồng bộ mảng users trong Department với dữ liệu thực tế từ User.department.
@@ -253,7 +253,7 @@ export const addUserToDepartment = async (req, res) => {
 
     const refreshedDepartment = await Department.findById(id).populate(
       "users",
-      "idCompanny displayName email position",
+      "idCompany displayName email position",
     );
 
     const message = membershipResult.previousDepartmentName
@@ -313,7 +313,7 @@ export const removeUserFromDepartment = async (req, res) => {
 
     const refreshedDepartment = await Department.findById(id).populate(
       "users",
-      "idCompanny displayName email position",
+      "idCompany displayName email position",
     );
 
     return res.status(200).json({

@@ -13,7 +13,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "admin_hierarchy",
+  "idCompany": "admin_hierarchy",
   "password": "test123",
   "displayName": "Admin User",
   "role": "admin",
@@ -25,7 +25,7 @@ POST {{baseUrl}}/auth/signin
 Content-Type: application/json
 
 {
-  "idCompanny": "admin_hierarchy",
+  "idCompany": "admin_hierarchy",
   "password": "test123"
 }
 
@@ -40,7 +40,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "manager_test",
+  "idCompany": "manager_test",
   "password": "test123",
   "displayName": "John Manager",
   "position": "Manager"
@@ -51,7 +51,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "asst_mgr_test",
+  "idCompany": "asst_mgr_test",
   "password": "test123",
   "displayName": "Jane Assistant Manager",
   "position": "Assistant Manager"
@@ -62,7 +62,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "supervisor_test",
+  "idCompany": "supervisor_test",
   "password": "test123",
   "displayName": "Bob Supervisor",
   "position": "Supervisor"
@@ -73,7 +73,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "staff_test",
+  "idCompany": "staff_test",
   "password": "test123",
   "displayName": "Alice Staff",
   "position": "Staff"

@@ -51,7 +51,7 @@ export const createOvertimeRequest = async (req, res) => {
     await otRequest.save();
     await otRequest.populate(
       "user",
-      "displayName idCompanny department position",
+      "displayName idCompany department position",
     );
 
     return res.status(201).json({
@@ -115,7 +115,7 @@ export const getAllOvertimeRequests = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const overtimeRequests = await Overtime.find(query)
-      .populate("user", "displayName idCompanny department position")
+      .populate("user", "displayName idCompany department position")
       .populate("approvedBy", "displayName")
       .sort({ checkInDate: -1 })
       .skip(skip)
@@ -146,7 +146,7 @@ export const getOvertimeById = async (req, res) => {
     const userRole = req.userRole;
 
     const overtime = await Overtime.findById(id)
-      .populate("user", "displayName idCompanny department position")
+      .populate("user", "displayName idCompany department position")
       .populate("approvedBy", "displayName");
 
     if (!overtime) {
@@ -193,7 +193,7 @@ export const approveOvertimeRequest = async (req, res) => {
     await overtime.save();
     await overtime.populate(
       "user",
-      "displayName idCompanny department position",
+      "displayName idCompany department position",
     );
     await overtime.populate("approvedBy", "displayName");
 
@@ -232,7 +232,7 @@ export const rejectOvertimeRequest = async (req, res) => {
     await overtime.save();
     await overtime.populate(
       "user",
-      "displayName idCompanny department position",
+      "displayName idCompany department position",
     );
     await overtime.populate("approvedBy", "displayName");
 
@@ -327,7 +327,7 @@ export const updateOvertimeRequest = async (req, res) => {
     await overtime.save();
     await overtime.populate(
       "user",
-      "displayName idCompanny department position",
+      "displayName idCompany department position",
     );
 
     return res.status(200).json({
@@ -380,7 +380,7 @@ export const updateOvertimeResult = async (req, res) => {
     await overtime.save();
     await overtime.populate(
       "user",
-      "displayName idCompanny department position",
+      "displayName idCompany department position",
     );
     await overtime.populate("approvedBy", "displayName");
 
@@ -464,7 +464,7 @@ export const exportOvertimeToExcel = async (req, res) => {
     }
 
     const overtimeRequests = await Overtime.find(query)
-      .populate("user", "displayName email idCompanny department position")
+      .populate("user", "displayName email idCompany department position")
       .populate("approvedBy", "displayName")
       .sort({ checkInDate: -1 })
       .lean();
@@ -479,7 +479,7 @@ export const exportOvertimeToExcel = async (req, res) => {
 
     const rows = overtimeRequests.map((item, index) => ({
       "No.": index + 1,
-      "Mã nhân viên": item.user?.idCompanny || "",
+      "Mã nhân viên": item.user?.idCompany || "",
       "Tên nhân viên": item.user?.displayName || "",
       Email: item.user?.email || "",
       "Phòng ban": item.user?.department || "",
@@ -731,7 +731,7 @@ export const importOvertimeFromExcel = async (req, res) => {
         }
 
         // Find user by employee ID
-        const user = await User.findOne({ idCompanny: empNo });
+        const user = await User.findOne({ idCompany: empNo });
         if (!user) {
           errorCount++;
           results.push({

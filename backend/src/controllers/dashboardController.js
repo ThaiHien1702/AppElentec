@@ -195,10 +195,10 @@ export const getDepartmentDetail = async (req, res) => {
       const data = await Leave.find(filter)
         .sort({ createdAt: -1 })
         .limit(limit)
-        .populate("user", "displayName idCompanny department position");
+        .populate("user", "displayName idCompany department position");
       records = data.map((r) => ({
         _id: r._id,
-        col1: r.user?.displayName || r.user?.idCompanny || "N/A",
+        col1: r.user?.displayName || r.user?.idCompany || "N/A",
         col2: r.user?.department || "-",
         col3: r.leaveType,
         col4: `${new Date(r.startDate).toLocaleDateString("vi-VN")} → ${new Date(r.endDate).toLocaleDateString("vi-VN")}`,
@@ -214,10 +214,10 @@ export const getDepartmentDetail = async (req, res) => {
       const data = await Overtime.find(filter)
         .sort({ createdAt: -1 })
         .limit(limit)
-        .populate("user", "displayName idCompanny department position");
+        .populate("user", "displayName idCompany department position");
       records = data.map((r) => ({
         _id: r._id,
-        col1: r.user?.displayName || r.user?.idCompanny || "N/A",
+        col1: r.user?.displayName || r.user?.idCompany || "N/A",
         col2: r.user?.department || "-",
         col3: new Date(r.checkInDate).toLocaleDateString("vi-VN"),
         col4: `${r.otPlanStart} – ${r.otPlanFinish}`,
@@ -233,11 +233,11 @@ export const getDepartmentDetail = async (req, res) => {
       const data = await VisitRequest.find(filter)
         .sort({ createdAt: -1 })
         .limit(limit)
-        .populate("requestedBy", "displayName idCompanny department");
+        .populate("requestedBy", "displayName idCompany department");
       records = data.map((r) => ({
         _id: r._id,
         col1: r.requestCode || "N/A",
-        col2: r.requestedBy?.displayName || r.requestedBy?.idCompanny || "N/A",
+        col2: r.requestedBy?.displayName || r.requestedBy?.idCompany || "N/A",
         col3: r.visitorName || "-",
         col4: r.purpose || "-",
         col5: r.areaAllowed || "-",

@@ -9,7 +9,7 @@ POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "idCompanny": "admin",
+  "idCompany": "admin",
   "password": "123456",
   "email": "admin@gmail.com",
   "displayName": "Thái Hiền"
@@ -20,7 +20,7 @@ POST {{baseUrl}}/auth/signin
 Content-Type: application/json
 
 {
-  "idCompanny": "admin",
+  "idCompany": "admin",
   "password": "123456"
 }
 

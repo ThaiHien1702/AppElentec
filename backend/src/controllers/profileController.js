@@ -24,7 +24,7 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.userId;
-    const { displayName, email, department, phone, avatrUrl } =
+    const { displayName, email, department, phone, avatarUrl } =
       req.body;
 
     // Kiểm tra email trùng với user khác
@@ -43,7 +43,7 @@ export const updateProfile = async (req, res) => {
     if (email) updateData.email = email;
     // position: user không được tự đổi — chỉ admin mới có quyền thay đổi qua admin controller
     if (phone !== undefined) updateData.phone = phone;
-    if (avatrUrl !== undefined) updateData.avatrUrl = avatrUrl;
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
 
     const user = await User.findByIdAndUpdate(userId, updateData, {
       returnDocument: "after",

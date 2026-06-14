@@ -412,7 +412,7 @@ export default function OvertimeManagement() {
                           {(currentPage - 1) * 20 + idx + 1}
                         </td>
                         <td className="p-3 font-semibold text-blue-700">
-                          {req.user?.idCompanny || "—"}
+                          {req.user?.idCompany || "—"}
                         </td>
                         <td className="p-3 font-medium text-gray-900">
                           {req.user?.displayName || "—"}

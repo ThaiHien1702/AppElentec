@@ -207,7 +207,7 @@ export const getOverdueReport = async (req, res) => {
       ],
     })
       .sort({ expectedCheckOutAt: 1 })
-      .populate("requestedBy", "displayName idCompanny department")
+      .populate("requestedBy", "displayName idCompany department")
       .select(
         "requestCode visitorName visitorPhone visitorCompany purpose hostName areaAllowed status expectedCheckOutAt checkInAt requestedBy",
       );
@@ -497,7 +497,7 @@ export const getLeavePendingReport = async (req, res) => {
       status: "PENDING",
     })
       .sort({ startDate: 1 })
-      .populate("user", "displayName email idCompanny department")
+      .populate("user", "displayName email idCompany department")
       .select(
         "user leaveType startDate endDate daysCount reason status createdAt",
       );
@@ -560,7 +560,7 @@ export const exportLeaveReport = async (req, res) => {
       createdAt: { $gte: from, $lte: to },
     })
       .sort({ createdAt: -1 })
-      .populate("user", "displayName email idCompanny department");
+      .populate("user", "displayName email idCompany department");
 
     const rows = leaves.map((item) => ({
       displayName: item.user?.displayName || "N/A",
@@ -777,7 +777,7 @@ export const getOvertimePendingReport = async (req, res) => {
       status: "PENDING",
     })
       .sort({ checkInDate: 1 })
-      .populate("user", "displayName email idCompanny department")
+      .populate("user", "displayName email idCompany department")
       .select(
         "user checkInDate checkInTime checkOutTime reason status createdAt",
       );
@@ -839,7 +839,7 @@ export const exportOvertimeReport = async (req, res) => {
       createdAt: { $gte: from, $lte: to },
     })
       .sort({ createdAt: -1 })
-      .populate("user", "displayName email idCompanny department");
+      .populate("user", "displayName email idCompany department");
 
     const rows = overtimes.map((item) => ({
       displayName: item.user?.displayName || "N/A",

@@ -152,7 +152,7 @@ export const updateUserProfileByAdmin = async (req, res) => {
   try {
     const { userId } = req.params;
     const {
-      idCompanny,
+      idCompany,
       displayName,
       email,
       department,
@@ -176,10 +176,10 @@ export const updateUserProfileByAdmin = async (req, res) => {
       }
     }
 
-    if (idCompanny) {
-      const normalizedIdCompanny = idCompanny.trim().toLowerCase();
+    if (idCompany) {
+      const normalizedIdCompanny = idCompany.trim().toLowerCase();
       const existingIdCompanny = await User.findOne({
-        idCompanny: normalizedIdCompanny,
+        idCompany: normalizedIdCompanny,
         _id: { $ne: userId },
       });
       if (existingIdCompanny) {
@@ -207,8 +207,8 @@ export const updateUserProfileByAdmin = async (req, res) => {
     }
 
     const updateData = {};
-    if (idCompanny !== undefined) {
-      updateData.idCompanny = idCompanny?.trim().toLowerCase();
+    if (idCompany !== undefined) {
+      updateData.idCompany = idCompany?.trim().toLowerCase();
     }
     if (displayName !== undefined) updateData.displayName = displayName;
     if (email !== undefined) updateData.email = email;

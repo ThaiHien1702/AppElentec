@@ -41,9 +41,9 @@ const ProfileDropdown = ({ isBottomBar = false }) => {
         className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
       >
         <div className="h-8 w-8 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center overflow-hidden">
-          {user?.avatrUrl ? (
+          {user?.avatarUrl ? (
             <img
-              src={user.avatrUrl}
+              src={user.avatarUrl}
               alt="Avatar"
               className="w-full h-full object-cover"
             />
@@ -64,7 +64,7 @@ const ProfileDropdown = ({ isBottomBar = false }) => {
             <div className="px-4 py-3 border-b border-gray-200">
               <p className="text-sm font-medium text-gray-900">Xin chào</p>
               <p className="text-xs text-gray-500 mt-1">
-                {user?.displayName || user?.idCompanny || "User"}
+                {user?.displayName || user?.idCompany || "User"}
               </p>
             </div>
             <button

@@ -455,7 +455,7 @@ const DepartmentPage = () => {
                     )
                     .map((u) => (
                       <option key={u._id} value={u._id}>
-                        {u.displayName} ({u.idCompanny})
+                        {u.displayName} ({u.idCompany})
                       </option>
                     ))}
                 </select>
@@ -485,7 +485,7 @@ const DepartmentPage = () => {
                         {u.displayName}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {u.idCompanny} • {u.position}
+                        {u.idCompany} • {u.position}
                       </div>
                     </div>
                     <button

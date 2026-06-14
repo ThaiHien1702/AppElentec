@@ -416,9 +416,9 @@ export const getMyVisitRequests = async (req, res) => {
 
     const visits = await VisitRequest.find(query)
       .sort({ createdAt: -1 })
-      .populate("requestedBy", "displayName idCompanny department")
-      .populate("approvedBy", "displayName idCompanny")
-      .populate("rejectedBy", "displayName idCompanny");
+      .populate("requestedBy", "displayName idCompany department")
+      .populate("approvedBy", "displayName idCompany")
+      .populate("rejectedBy", "displayName idCompany");
 
     return res.status(200).json(visits);
   } catch (error) {
@@ -479,7 +479,7 @@ export const getApprovalInbox = async (req, res) => {
       status: "PENDING_APPROVAL",
     })
       .sort({ createdAt: 1 })
-      .populate("requestedBy", "displayName idCompanny department position");
+      .populate("requestedBy", "displayName idCompany department position");
 
     return res.status(200).json(pendingRequests);
   } catch (error) {
@@ -613,12 +613,12 @@ export const verifyVisitQr = async (req, res) => {
     let visit = await VisitRequest.findOne({
       status: { $in: ["CHECKED_IN", "OVERDUE"] },
       gateCardCode: normalizedLookupCode,
-    }).populate("requestedBy", "displayName idCompanny department");
+    }).populate("requestedBy", "displayName idCompany department");
 
     if (!visit) {
       visit = await VisitRequest.findOne({
         $or: [{ qrToken: lookupCode }, { requestCode: lookupCode }],
-      }).populate("requestedBy", "displayName idCompanny department");
+      }).populate("requestedBy", "displayName idCompany department");
     }
 
     // Fallback: hỗ trợ quét QR CCCD Việt Nam để tra cứu bằng số định danh.
@@ -630,7 +630,7 @@ export const verifyVisitQr = async (req, res) => {
         idNumber: cccdFromQr,
       })
         .sort({ createdAt: -1 })
-        .populate("requestedBy", "displayName idCompanny department");
+        .populate("requestedBy", "displayName idCompany department");
     }
 
     if (!visit) {
@@ -976,9 +976,9 @@ export const getVisitDetail = async (req, res) => {
     }
 
     const visit = await VisitRequest.findById(id)
-      .populate("requestedBy", "displayName idCompanny department")
-      .populate("approvedBy", "displayName idCompanny")
-      .populate("rejectedBy", "displayName idCompanny");
+      .populate("requestedBy", "displayName idCompany department")
+      .populate("approvedBy", "displayName idCompany")
+      .populate("rejectedBy", "displayName idCompany");
 
     if (!visit) {
       return res.status(404).json({ message: "Yêu cầu không tồn tại" });
@@ -986,8 +986,8 @@ export const getVisitDetail = async (req, res) => {
 
     // Lấy danh sách hành lý
     const luggage = await Luggage.find({ visitRequest: id })
-      .populate("checkedInBy", "displayName idCompanny")
-      .populate("checkedOutBy", "displayName idCompanny")
+      .populate("checkedInBy", "displayName idCompany")
+      .populate("checkedOutBy", "displayName idCompany")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({

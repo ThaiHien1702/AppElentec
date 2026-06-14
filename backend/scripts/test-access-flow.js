@@ -16,13 +16,13 @@ const API_BASE_URL =
 
 const TEST_USERS = {
   requester: {
-    idCompanny: "qa_requester",
+    idCompany: "qa_requester",
     password: "Pass@123",
     displayName: "QA Requester",
     role: "user",
   },
   approver: {
-    idCompanny: "qa_approver",
+    idCompany: "qa_approver",
     password: "Pass@123",
     displayName: "QA Approver",
     role: "moderator",
@@ -78,15 +78,15 @@ const ensureTestUsers = async () => {
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
     await User.updateOne(
-      { idCompanny: user.idCompanny },
+      { idCompany: user.idCompany },
       {
         $set: {
-          idCompanny: user.idCompanny,
+          idCompany: user.idCompany,
           displayName: user.displayName,
           role: user.role,
           hashedPassword,
           position: "Staff",
-          email: `${user.idCompanny}@qa.local`,
+          email: `${user.idCompany}@qa.local`,
         },
       },
       { upsert: true },
@@ -94,15 +94,15 @@ const ensureTestUsers = async () => {
   }
 };
 
-const signIn = async (idCompanny, password) => {
+const signIn = async (idCompany, password) => {
   const response = await request("POST", "/auth/signin", {
-    body: { idCompanny, password },
+    body: { idCompany, password },
     expectedStatus: 200,
   });
 
   assert(
     response.data?.accessToken,
-    `Thiếu accessToken khi login ${idCompanny}`,
+    `Thiếu accessToken khi login ${idCompany}`,
   );
   return response.data.accessToken;
 };
@@ -116,8 +116,8 @@ const cleanupTestData = async () => {
     userId: {
       $in: (
         await User.find({
-          idCompanny: {
-            $in: Object.values(TEST_USERS).map((u) => u.idCompanny),
+          idCompany: {
+            $in: Object.values(TEST_USERS).map((u) => u.idCompany),
           },
         }).select("_id")
       ).map((u) => u._id),
@@ -139,11 +139,11 @@ const run = async () => {
     await ensureTestUsers();
 
     const requesterToken = await signIn(
-      TEST_USERS.requester.idCompanny,
+      TEST_USERS.requester.idCompany,
       TEST_USERS.requester.password,
     );
     const approverToken = await signIn(
-      TEST_USERS.approver.idCompanny,
+      TEST_USERS.approver.idCompany,
       TEST_USERS.approver.password,
     );
 

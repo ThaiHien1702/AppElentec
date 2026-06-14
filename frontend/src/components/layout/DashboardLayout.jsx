@@ -306,7 +306,7 @@ const DashboardLayout = ({ children }) => {
                 </h1>
                 <div className="hidden sm:block mt-0.5">
                   <p className="text-sm text-gray-500">
-                    {user?.displayName || user?.idCompanny || user?.username}
+                    {user?.displayName || user?.idCompany || user?.username}
                   </p>
                   <p className="text-xs text-gray-500">
                     Phòng ban: {user?.department || "Chưa được gán"}

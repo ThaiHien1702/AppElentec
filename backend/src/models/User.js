@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    idCompanny: {
+    idCompany: {
       type: String, //chuỗi
       required: true, //bắt buộc
       unique: true, //không trùng lặp
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    avatrUrl: {
+    avatarUrl: {
       type: String, //link ảnh đại diện, có thể là URL hoặc đường dẫn đến file trên server
     },
     avatarId: {

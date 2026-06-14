@@ -144,8 +144,8 @@ export const getLuggageByVisit = async (req, res) => {
     }
 
     const luggage = await Luggage.find({ visitRequest: visitRequestId })
-      .populate("checkedInBy", "displayName idCompanny")
-      .populate("checkedOutBy", "displayName idCompanny")
+      .populate("checkedInBy", "displayName idCompany")
+      .populate("checkedOutBy", "displayName idCompany")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -348,8 +348,8 @@ export const getAllLuggage = async (req, res) => {
 
     const luggage = await Luggage.find(filter)
       .populate("visitRequest", "requestCode visitorName status")
-      .populate("checkedInBy", "displayName idCompanny")
-      .populate("checkedOutBy", "displayName idCompanny")
+      .populate("checkedInBy", "displayName idCompany")
+      .populate("checkedOutBy", "displayName idCompany")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize);

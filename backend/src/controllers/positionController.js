@@ -38,7 +38,7 @@ export const getUsersByPosition = async (req, res) => {
     }
 
     const users = await User.find(query, {
-      idCompanny: 1,
+      idCompany: 1,
       displayName: 1,
       position: 1,
       department: 1,
@@ -140,7 +140,7 @@ export const getUserPositionInfo = async (req, res) => {
     const user = await User.findById(req.userId, {
       position: 1,
       displayName: 1,
-      idCompanny: 1,
+      idCompany: 1,
       department: 1,
     });
 
@@ -156,7 +156,7 @@ export const getUserPositionInfo = async (req, res) => {
       data: {
         user: {
           _id: user._id,
-          idCompanny: user.idCompanny,
+          idCompany: user.idCompany,
           displayName: user.displayName,
           position: user.position,
           department: user.department,
@@ -193,7 +193,7 @@ export const getSubordinates = async (req, res) => {
         },
       },
       {
-        idCompanny: 1,
+        idCompany: 1,
         displayName: 1,
         position: 1,
         department: 1,

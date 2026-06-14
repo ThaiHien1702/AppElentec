@@ -4,7 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    idCompanny: "",
+    idCompany: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
@@ -42,16 +42,16 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="idCompanny"
+              htmlFor="idCompany"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               ID
             </label>
             <input
               type="text"
-              id="idCompanny"
-              name="idCompanny"
-              value={formData.idCompanny}
+              id="idCompany"
+              name="idCompany"
+              value={formData.idCompany}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

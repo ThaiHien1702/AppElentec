@@ -156,7 +156,7 @@ export default function PositionManagement() {
                   {user.displayName}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {user.idCompanny}
+                  {user.idCompany}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {user.department || "N/A"}
