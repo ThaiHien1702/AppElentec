@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { Form, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FileText, Menu, X } from "lucide-react";
 import ProfileDropdown from "../layout/ProfileDropdown";
 import Button from "../ui/Button";
+import { useAuth } from "../../hooks/useAuth";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenOpen, setIsMenuOpen] = useState(false);
-  const isAuthenticated = false;
-  const user = { name: "Hien", email: "hien@gmail.com" };
-  const logout = () => {};
+  const { isAuthenticated, user, signout } = useAuth();
+  const logout = signout;
   const navigator = useNavigate();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   useEffect(() => {
@@ -71,8 +71,8 @@ const Header = () => {
                   e.stopPropagation();
                   setProfileDropdownOpen(!profileDropdownOpen);
                 }}
-                avatar={user?.avatar || ""}
-                companyName={user?.name || ""}
+                avatar={user?.avatarUrl || ""}
+                companyName={user?.displayName || ""}
                 email={user?.email || ""}
                 onLogout={logout}
               ></ProfileDropdown>
